@@ -78,7 +78,8 @@ const importSchema = z.object({
         last_name: z.string().trim().min(1).max(100),
         dni: optionalText(30),
         puesto: optionalText(100),
-        days_of_week: z.array(z.number().int().min(0).max(6)).max(7).optional(),
+        // null (or missing) means the person follows the schedule of the business.
+        days_of_week: z.array(z.number().int().min(0).max(6)).max(7).nullable().optional(),
       }),
     )
     .min(1)

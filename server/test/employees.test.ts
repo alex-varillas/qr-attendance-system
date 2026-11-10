@@ -81,10 +81,12 @@ describe('employees, PIN and administrators', () => {
         rows: [
           { name: 'Ana', last_name: 'Uno', dni: '1' },
           { name: 'Beto', last_name: 'Dos', puesto: 'Driver', days_of_week: [1, 3, 5] },
+          // The CSV screen sends null for "follows the business schedule".
+          { name: 'Cleo', last_name: 'Tres', dni: '', puesto: '', days_of_week: null },
         ],
       })
       assert.equal(response.status, 201)
-      assert.equal(response.body.length, 2)
+      assert.equal(response.body.length, 3)
       const schedules = (await ctx.pool.query('SELECT employee_id, days_of_week FROM schedules')).rows
       assert.equal(schedules.length, 1)
       assert.deepEqual(schedules[0].days_of_week, [1, 3, 5])
