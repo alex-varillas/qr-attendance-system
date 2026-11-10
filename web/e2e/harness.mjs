@@ -165,8 +165,9 @@ export async function runScenarios(title, stack, scenarios) {
 export const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export async function expectText(page, text, timeout = 8000) {
+  // Case-insensitive: some labels are shown in capitals by CSS, which `innerText` reflects.
   await page.waitForFunction(
-    (needle) => document.body?.innerText.includes(needle),
+    (needle) => document.body?.innerText.toLowerCase().includes(needle.toLowerCase()),
     { timeout },
     text,
   ).catch(async () => {
@@ -180,15 +181,16 @@ export async function expectNoText(page, text) {
   if (present) throw new Error(`Did not expect to see "${text}"`)
 }
 
-export async function clickText(page, text, selector = 'button, a') {
-  const handle = await page.evaluateHandle(
-    (needle, sel) => [...document.querySelectorAll(sel)].find((el) => el.innerText?.trim().includes(needle) && !el.disabled),
-    text,
-    selector,
-  )
-  const element = handle.asElement()
-  if (!element) throw new Error(`No clickable element with the text "${text}"`)
-  await element.click()
+/** Clicks the first enabled element (button or link by default) whose text contains `text`. `scope` is a page or an element. */
+export async function clickText(scope, text, selector = 'button, a') {
+  for (const element of await scope.$$(selector)) {
+    const [label, disabled] = await element.evaluate((node) => [node.innerText?.trim() ?? '', node.disabled === true])
+    if (label.includes(text) && !disabled) {
+      await element.click()
+      return
+    }
+  }
+  throw new Error(`No clickable element with the text "${text}"`)
 }
 
 export async function fill(page, selector, value) {
@@ -218,6 +220,15 @@ export function apiCall(page, method, path, body) {
 
 export function assert(condition, message) {
   if (!condition) throw new Error(message)
+}
+
+/** Signs in through the real login screen. */
+export async function login(page, baseUrl, email, password) {
+  await page.goto(`${baseUrl}/login`)
+  await fill(page, '#email', email)
+  await fill(page, '#password', password)
+  await clickText(page, 'Ingresar')
+  await waitForPath(page, '/dashboard')
 }
 
 export async function waitForPath(page, pathname, timeout = 8000) {

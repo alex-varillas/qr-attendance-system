@@ -51,7 +51,7 @@ export const scenarios = (stack) => [
     await clickText(page, 'Ingresar')
     await waitForPath(page, '/dashboard')
     await expectText(page, OWNER.business)
-    await clickText(page, 'Cerrar sesión')
+    await page.click('button[title="Cerrar sesión"]')
     await waitForPath(page, '/login')
     await page.goto(`${stack.baseUrl}/dashboard`)
     await waitForPath(page, '/login')
@@ -94,7 +94,7 @@ export const scenarios = (stack) => [
     await fill(page, '#confirm', 'Ada-Password-7')
     await clickText(page, 'Guardar contraseña y entrar')
     await waitForPath(page, '/dashboard')
-    await expectText(page, '(admin)')
+    await expectText(page, 'Administrador')
 
     // The link cannot be used a second time.
     await apiCall(page, 'POST', '/auth/logout')

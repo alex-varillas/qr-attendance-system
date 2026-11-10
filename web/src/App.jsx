@@ -6,7 +6,20 @@ import Setup from './pages/auth/Setup'
 import ForgotPassword from './pages/auth/ForgotPassword'
 import ResetPassword from './pages/auth/ResetPassword'
 import AcceptInvite from './pages/auth/AcceptInvite'
+import AppLayout from './components/layout/AppLayout'
+import { ToastProvider } from './components/ui/Toast'
+import Employees from './pages/employees/Employees'
 import Home from './pages/Home'
+
+function AppPage({ children }) {
+  return (
+    <ProtectedRoute>
+      <ToastProvider>
+        <AppLayout>{children}</AppLayout>
+      </ToastProvider>
+    </ProtectedRoute>
+  )
+}
 
 export default function App() {
   return (
@@ -23,7 +36,8 @@ export default function App() {
           <Route path="/accept-invite" element={<SetupGate><AcceptInvite /></SetupGate>} />
 
           {/* Signed-in pages */}
-          <Route path="/dashboard" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<AppPage><Home /></AppPage>} />
+          <Route path="/employees" element={<AppPage><Employees /></AppPage>} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
