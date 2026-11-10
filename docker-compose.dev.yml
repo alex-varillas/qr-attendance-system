@@ -1,0 +1,25 @@
+# Development and test databases only. Not for production: see docker-compose.yml.
+name: qras-dev
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: qras
+      POSTGRES_PASSWORD: qras
+      POSTGRES_DB: qras
+    ports:
+      - "55432:5432"
+    volumes:
+      - dev-db:/var/lib/postgresql/data
+  db-test:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: qras
+      POSTGRES_PASSWORD: qras
+      POSTGRES_DB: postgres
+    ports:
+      - "55433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+volumes:
+  dev-db:
