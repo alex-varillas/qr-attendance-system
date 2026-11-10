@@ -120,7 +120,7 @@ Only the owner and the administrators have accounts. If one of them forgets thei
   docker compose exec app node src/cli/reset-password.ts owner@example.com
   ```
 
-  Without Docker: `npm --prefix server run reset-password -- owner@example.com`. The link is valid for 24 hours and signs out the account's open sessions when used.
+  Without Docker: `npm --prefix server run reset-password -- owner@example.com`. The link is valid for 24 hours and signs out the account's open sessions when used. It starts with `PUBLIC_URL` when that is set and with `http://localhost:3000` otherwise: if you reach the app at another address, replace that part of the link with it.
 
 ## Uninstalling
 
