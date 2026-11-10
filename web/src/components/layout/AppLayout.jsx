@@ -3,6 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { BRAND_GRADIENT } from '../../utils/theme'
+import { useLateCheckinAlerts } from '../../hooks/useLateCheckinAlerts'
 import { ROLE_LABELS } from '../../utils/labels'
 
 // Navigation grouped by section. Each item has its own visibility rule (show) and icon.
@@ -133,6 +134,7 @@ function Isotipo({ className = 'w-8 h-8' }) {
 
 export default function AppLayout({ children }) {
   const { user, business, userRole, isOwner, hasPermission } = useAuth()
+  useLateCheckinAlerts()
   const [collapsed, setCollapsed]   = useState(() => localStorage.getItem('sidebar_collapsed') === '1')
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()

@@ -33,7 +33,7 @@ export function getAppLocale() {
 }
 
 /** Today's date as YYYY-MM-DD in the business time zone. */
-export function today() {
+export function todayISO() {
   return new Date().toLocaleDateString('en-CA', { timeZone: TIMEZONE })
 }
 

@@ -12,7 +12,7 @@ import Employees from './pages/employees/Employees'
 import Checkin from './pages/checkin/Checkin'
 import QrCode from './pages/qr/QrCode'
 import Locations from './pages/locations/Locations'
-import Home from './pages/Home'
+import Dashboard from './pages/dashboard/Dashboard'
 
 function AppPage({ children }) {
   return (
@@ -42,7 +42,7 @@ export default function App() {
           <Route path="/checkin/:checkinId" element={<Checkin />} />
 
           {/* Signed-in pages */}
-          <Route path="/dashboard" element={<AppPage><Home /></AppPage>} />
+          <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
           <Route path="/employees" element={<AppPage><Employees /></AppPage>} />
 
           {/* Owner only */}
