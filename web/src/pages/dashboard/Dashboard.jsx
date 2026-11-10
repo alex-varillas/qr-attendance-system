@@ -8,6 +8,7 @@ import { useScheduleExceptions } from '../../hooks/useScheduleExceptions'
 import { useAttendance } from '../../hooks/useAttendance'
 import { useNow } from '../../hooks/useNow'
 import { CAL_MONTHS, CAL_DAYS, calMonthData, toISODate } from '../../components/ui/Calendar'
+import ExportModal from '../../components/ui/ExportModal'
 import JustificationModal from '../../components/ui/JustificationModal'
 import { useJustifications } from '../../hooks/useJustifications'
 import { useHolidays } from '../../hooks/useHolidays'
@@ -449,6 +450,7 @@ export default function Dashboard() {
   const { business, employee, isAdmin } = useAuth()
 
   const [selectedDate, setSelectedDate] = useState(todayISO())
+  const [exportOpen, setExportOpen]   = useState(false)
   const [justifyTarget, setJustifyTarget] = useState(null) // { emp, justification }
   const [selectedSede, setSelectedSede]   = useState('')   // '' = todas, 'none' = sin sede, o location.id
   const [selectedDept, setSelectedDept]   = useState('')   // '' = todas las áreas, o department.id
@@ -610,6 +612,18 @@ export default function Dashboard() {
             value={selectedDate}
             onChange={handleDateChange}
           />
+
+          <button
+            onClick={() => setExportOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300"
+            title="Exportar reporte"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span className="hidden sm:inline">Exportar</span>
+          </button>
         </div>
       </div>
 
@@ -757,6 +771,10 @@ export default function Dashboard() {
         )}
 
       </div>
+
+      <AnimatePresence>
+        {exportOpen && <ExportModal key="export" onClose={() => setExportOpen(false)} />}
+      </AnimatePresence>
 
       <AnimatePresence>
         {justifyTarget && (

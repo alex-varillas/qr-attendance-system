@@ -12,6 +12,7 @@ import Employees from './pages/employees/Employees'
 import EmployeeProfile from './pages/employees/EmployeeProfile'
 import EmployeeStats from './pages/stats/EmployeeStats'
 import Leave from './pages/leave/Leave'
+import Reports from './pages/reports/Reports'
 import Checkin from './pages/checkin/Checkin'
 import QrCode from './pages/qr/QrCode'
 import Locations from './pages/locations/Locations'
@@ -51,6 +52,7 @@ export default function App() {
           <Route path="/employees/:id" element={<AppPage><EmployeeProfile /></AppPage>} />
           <Route path="/stats" element={<AppPage><EmployeeStats /></AppPage>} />
           <Route path="/leave" element={<AppPage><Leave /></AppPage>} />
+          <Route path="/reports" element={<AppPage><Reports /></AppPage>} />
 
           {/* Owner only */}
           <Route path="/qr" element={<AppPage><OwnerRoute><QrCode /></OwnerRoute></AppPage>} />

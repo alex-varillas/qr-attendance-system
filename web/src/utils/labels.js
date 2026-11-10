@@ -19,3 +19,8 @@ export const DOC_TYPES = [
   { value: 'PASSPORT', label: 'Pasaporte', maxLen: 30 },
   { value: 'OTHER', label: 'Otro', maxLen: 30 },
 ]
+
+/** The label of a document type, or the raw value for one this list does not know (older data). */
+export function docTypeLabel(value) {
+  return DOC_TYPES.find(type => type.value === value)?.label ?? value ?? ''
+}
