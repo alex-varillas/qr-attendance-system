@@ -15,6 +15,9 @@ coverage/
 data/
 /server/data/
 
+# Screenshots saved by failing end-to-end runs
+/web/e2e/artifacts/
+
 # Logs
 *.log
 npm-debug.log*

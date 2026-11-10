@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@import "@fontsource/plus-jakarta-sans/700.css";
+@import "@fontsource/plus-jakarta-sans/800.css";
+
+/* ── Table row entrance ─────────────────────────── */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.row-enter {
+  animation: fadeSlideUp 0.3s ease-out both;
+}
+
+/* ── Button press feedback ──────────────────────── */
+button:not(:disabled):active,
+a:not([disabled]):active {
+  transform: scale(0.94) !important;
+  transition: transform 80ms ease !important;
+}
+
+button:not(:disabled),
+a:not([disabled]) {
+  transition: transform 150ms ease, color 150ms ease, background-color 150ms ease,
+    border-color 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+}
+
+/* ── Smooth scrollbar ───────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
