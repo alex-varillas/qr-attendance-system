@@ -3,7 +3,7 @@ import { many, one, withTransaction } from '../db/index.ts'
 import type { Queryable } from '../db/index.ts'
 import { verifySecret } from './security.ts'
 
-// Rules carried over from the original product, now the single source of truth for marking attendance.
+// The rules for marking attendance live here, in one place.
 export const PIN_MAX_FAILED_ATTEMPTS = 5
 export const PIN_WINDOW_MINUTES = 5
 /** The GPS accuracy reported by the device widens the allowed radius, but never by more than this. */

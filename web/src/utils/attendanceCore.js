@@ -24,7 +24,7 @@ export function dateRange(from, to) {
   return dates
 }
 
-// Exportada: attendanceReport.js también la usa directo para cabeceras de CSV/Excel,
+// Exportada: attendanceReport.js también la usa directo para cabeceras de Excel,
 // fuera de buildRowData.
 export function formatFecha(dateStr) {
   const [y, m, d] = dateStr.split('-')

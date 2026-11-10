@@ -1,4 +1,4 @@
-// The attendance report: one row per employee and working day, as Excel, CSV or PDF.
+// The attendance report: one row per employee and working day, as Excel or PDF.
 // It is built in the browser from the data of GET /api/reports/data.
 
 import { getApplicableSchedule } from './attendance'
@@ -32,7 +32,7 @@ const PDF_COLUMNS = [
   { get title() { return t('Horas extra') }, index: 14 },
 ]
 
-// The matrix of rows shared by CSV, Excel and PDF.
+// The matrix of rows shared by Excel and PDF.
 function buildRows(
   { employees, schedules, schedule_exceptions: _exceptions, records, justifications = [], holidays = [], overtime_authorizations = [], locations = [] },
   dateFrom,
@@ -80,34 +80,9 @@ function buildRows(
   return rows
 }
 
-function csvVal(value) {
-  if (value == null) return ''
-  const str = String(value)
-  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-    return `"${str.replace(/"/g, '""')}"`
-  }
-  return str
-}
-
 function baseFileName(businessName, dateFrom, dateTo) {
   const name = (businessName ?? 'business').replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '') || 'business'
   return `attendance_${name}_${dateFrom}_${dateTo}`
-}
-
-// ─── CSV ────────────────────────────────────────────────────────────────────
-export function generateAttendanceCSV(data, dateFrom, dateTo) {
-  const rows = buildRows(data, dateFrom, dateTo)
-  return [headers().map(csvVal).join(','), ...rows.map(r => r.map(csvVal).join(','))].join('\n')
-}
-
-export function downloadAttendanceCSV(csvString, businessName, dateFrom, dateTo) {
-  const blob = new Blob(['﻿' + csvString], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${baseFileName(businessName, dateFrom, dateTo)}.csv`
-  a.click()
-  URL.revokeObjectURL(url)
 }
 
 // ─── Excel (.xlsx) ──────────────────────────────────────────────────────────
