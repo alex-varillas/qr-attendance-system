@@ -1,0 +1,70 @@
+# QR Attendance System: the app and its database.
+#
+#   cp .env.example .env      # set POSTGRES_PASSWORD
+#   docker compose up -d
+#
+# Then open http://localhost:3000 and create the owner account.
+#
+# Browsers only allow the camera and the location on HTTPS (or on localhost), so a real installation needs
+# HTTPS. The "https" profile adds Caddy, which gets and renews a certificate by itself:
+#
+#   docker compose --profile https up -d      # with DOMAIN, TRUST_PROXY=true and COOKIE_SECURE=true in .env
+name: qr-attendance
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: qras
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the .env file}
+      POSTGRES_DB: qras
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qras -d qras"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://qras:${POSTGRES_PASSWORD}@db:5432/qras
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      COOKIE_SECURE: ${COOKIE_SECURE:-}
+      SMTP_URL: ${SMTP_URL:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - app-data:/data
+
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["https"]
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      # Set DOMAIN in the .env file. The default only serves the machine itself, with a local certificate.
+      DOMAIN: ${DOMAIN:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  db-data:
+  app-data:
+  caddy-data:
+  caddy-config:

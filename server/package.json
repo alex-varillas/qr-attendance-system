@@ -7,10 +7,10 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "node --watch src/index.ts",
-    "start": "node src/index.ts",
+    "dev": "node --env-file-if-exists=.env --watch src/index.ts",
+    "start": "node --env-file-if-exists=.env src/index.ts",
     "typecheck": "tsc --noEmit",
-    "reset-password": "node src/cli/reset-password.ts",
+    "reset-password": "node --env-file-if-exists=.env src/cli/reset-password.ts",
     "db:generate": "drizzle-kit generate",
     "test": "node --test \"test/**/*.test.ts\""
   },

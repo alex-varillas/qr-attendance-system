@@ -1,0 +1,7 @@
+# Used only with: docker compose --profile https up -d
+# Caddy gets and renews a certificate for DOMAIN on its own (the domain must point to this machine, and
+# ports 80 and 443 must be reachable from the internet).
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy app:3000
+}
