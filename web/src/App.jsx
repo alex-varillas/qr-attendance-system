@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './hooks/useAuth.jsx'
-import { OwnerRoute, ProtectedRoute, PublicRoute, SetupGate } from './components/layout/ProtectedRoute'
+import { OwnerRoute, PermissionRoute, ProtectedRoute, PublicRoute, SetupGate } from './components/layout/ProtectedRoute'
 import Login from './pages/auth/Login'
 import Setup from './pages/auth/Setup'
 import ForgotPassword from './pages/auth/ForgotPassword'
@@ -12,6 +12,7 @@ import Employees from './pages/employees/Employees'
 import Checkin from './pages/checkin/Checkin'
 import QrCode from './pages/qr/QrCode'
 import Locations from './pages/locations/Locations'
+import Settings from './pages/settings/Settings'
 import Dashboard from './pages/dashboard/Dashboard'
 
 function AppPage({ children }) {
@@ -48,6 +49,9 @@ export default function App() {
           {/* Owner only */}
           <Route path="/qr" element={<AppPage><OwnerRoute><QrCode /></OwnerRoute></AppPage>} />
           <Route path="/locations" element={<AppPage><OwnerRoute><Locations /></OwnerRoute></AppPage>} />
+
+          {/* The owner, or an administrator with the settings or holidays permission */}
+          <Route path="/settings" element={<AppPage><PermissionRoute anyOf={['manage_settings', 'manage_holidays']}><Settings /></PermissionRoute></AppPage>} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

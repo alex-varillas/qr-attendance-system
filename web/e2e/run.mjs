@@ -2,7 +2,7 @@
 //   npm run e2e        (needs the test database: docker compose -f ../docker-compose.dev.yml up -d db-test)
 import { runScenarios, startStack } from './harness.mjs'
 
-const modules = ['./auth.e2e.mjs', './employees.e2e.mjs', './checkin.e2e.mjs', './dashboard.e2e.mjs']
+const modules = ['./auth.e2e.mjs', './employees.e2e.mjs', './checkin.e2e.mjs', './dashboard.e2e.mjs', './settings.e2e.mjs']
 
 const stack = await startStack({ headless: !process.env.HEADED })
 let failures = 0

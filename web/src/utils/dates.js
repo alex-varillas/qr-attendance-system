@@ -32,6 +32,12 @@ export function getAppLocale() {
   return LOCALE
 }
 
+/** Every IANA time zone the browser knows, with UTC first. */
+export function listTimeZones() {
+  const supported = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : []
+  return ['UTC', ...supported.filter(zone => zone !== 'UTC')]
+}
+
 /** Today's date as YYYY-MM-DD in the business time zone. */
 export function todayISO() {
   return new Date().toLocaleDateString('en-CA', { timeZone: TIMEZONE })

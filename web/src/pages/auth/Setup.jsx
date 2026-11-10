@@ -7,14 +7,10 @@ import PasswordStrengthMeter from '../../components/ui/PasswordStrengthMeter'
 import AuthLayout from '../../components/layout/AuthLayout'
 import { BRAND_GRADIENT } from '../../utils/theme'
 import { isPasswordStrongEnough } from '../../utils/passwordStrength'
+import { listTimeZones } from '../../utils/dates'
 
 const INPUT = 'w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
 const PRIMARY = 'w-full text-white font-medium py-2 px-4 rounded-lg text-sm transition-all disabled:opacity-50 hover:brightness-95'
-
-function timeZones() {
-  const supported = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : []
-  return ['UTC', ...supported.filter(zone => zone !== 'UTC')]
-}
 
 // First run of a new installation: the first person creates the owner account and the business,
 // then picks the usual working hours. After this there is no public registration.
@@ -23,7 +19,7 @@ export default function Setup() {
   const navigate = useNavigate()
   const [step, setStep] = useState('account') // 'account' | 'schedule'
 
-  const zones = useMemo(timeZones, [])
+  const zones = useMemo(listTimeZones, [])
   const [form, setForm] = useState({
     business_name: '',
     tax_id: '',
