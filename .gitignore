@@ -1,0 +1,79 @@
+# Dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.tsbuildinfo
+
+# Environment and secrets (only the samples are versioned)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor and OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Local assistant configuration
+.claude/
+.agents/
+.codex/
+.local/
+
+# Private backups
+backups/
+.backups/
+*.bundle
+*.bak
+
+# Private working documents: never published
+CLAUDE.md
+AGENTS.md
+HANDOFF.md
+internal/
+TODO
+TODO.*
+MEMORY.md
+
+# Safety net: any other document stays local unless it is listed in the
+# exceptions below
+*.md
+*.mdx
+*.rst
+*.adoc
+*.txt
+*.text
+*.pdf
+*.doc
+*.docx
+*.odt
+*.rtf
+*.ppt
+*.pptx
+*.odp
+*.xls
+*.xlsx
+*.ods
+*.csv
+*.tsv
+
+# Public documents authorised by the owner on 2026-11-10, by exact path.
+# LICENSE is not matched by any rule above, so it is tracked as usual.
+# Any new public path needs the owner's explicit authorisation first.
+!/README.md
+!/README.es.md
+!/CONTRIBUTING.md
+!/SECURITY.md
+!/CODE_OF_CONDUCT.md
+!/CHANGELOG.md
+!/docs/**/*.md
