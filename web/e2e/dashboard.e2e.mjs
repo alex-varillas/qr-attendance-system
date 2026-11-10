@@ -27,10 +27,13 @@ export const scenarios = () => [
   ['the counters reflect the day', async (page, st) => {
     await login(page, st.baseUrl, OWNER.email, OWNER.password)
     await expectText(page, 'Presentes')
-    const presentes = await page.evaluate(() => {
+    const readCounter = () => {
       const label = [...document.querySelectorAll('p')].find((p) => p.textContent.trim() === 'Presentes')
       return Number(label?.previousElementSibling?.textContent)
-    })
+    }
+    // The counter starts at 0 until the day's marks arrive.
+    await page.waitForFunction((read) => new Function(`return (${read})()`)() > 0, { timeout: 8000 }, readCounter.toString())
+    const presentes = await page.evaluate((read) => new Function(`return (${read})()`)(), readCounter.toString())
     const checkedIn = (await st.sql("SELECT count(DISTINCT employee_id)::int AS n FROM attendance_records WHERE type = 'checkin'")).rows[0].n
     assert(presentes >= checkedIn - 1 && presentes <= checkedIn + 3, `presentes=${presentes}, people who checked in=${checkedIn}`)
   }],

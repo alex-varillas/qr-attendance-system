@@ -9,6 +9,9 @@ import AcceptInvite from './pages/auth/AcceptInvite'
 import AppLayout from './components/layout/AppLayout'
 import { ToastProvider } from './components/ui/Toast'
 import Employees from './pages/employees/Employees'
+import EmployeeProfile from './pages/employees/EmployeeProfile'
+import EmployeeStats from './pages/stats/EmployeeStats'
+import Leave from './pages/leave/Leave'
 import Checkin from './pages/checkin/Checkin'
 import QrCode from './pages/qr/QrCode'
 import Locations from './pages/locations/Locations'
@@ -45,6 +48,9 @@ export default function App() {
           {/* Signed-in pages */}
           <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
           <Route path="/employees" element={<AppPage><Employees /></AppPage>} />
+          <Route path="/employees/:id" element={<AppPage><EmployeeProfile /></AppPage>} />
+          <Route path="/stats" element={<AppPage><EmployeeStats /></AppPage>} />
+          <Route path="/leave" element={<AppPage><Leave /></AppPage>} />
 
           {/* Owner only */}
           <Route path="/qr" element={<AppPage><OwnerRoute><QrCode /></OwnerRoute></AppPage>} />
