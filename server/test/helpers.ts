@@ -99,6 +99,18 @@ export class Client {
     return { status: response.statusCode, body, headers: response.headers }
   }
 
+  /** Uploads one file as multipart form data, the way the browser does. */
+  upload<T = any>(url: string, filename: string, content: Buffer, mime: string, method = 'PUT'): Promise<Reply<T>> {
+    const boundary = '----qras-test-boundary'
+    const head = Buffer.from(
+      `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${filename}"\r\nContent-Type: ${mime}\r\n\r\n`,
+    )
+    const tail = Buffer.from(`\r\n--${boundary}--\r\n`)
+    return this.request<T>(method, url, Buffer.concat([head, content, tail]), {
+      'content-type': `multipart/form-data; boundary=${boundary}`,
+    })
+  }
+
   get = <T = any>(url: string) => this.request<T>('GET', url)
   post = <T = any>(url: string, payload?: unknown) => this.request<T>('POST', url, payload ?? {})
   put = <T = any>(url: string, payload?: unknown) => this.request<T>('PUT', url, payload ?? {})
@@ -114,6 +126,37 @@ export const OWNER = {
   business_name: 'Test Business',
   timezone: 'America/Lima',
   locale: 'en',
+}
+
+export interface AdminHandle {
+  client: Client
+  employeeId: string
+  email: string
+  password: string
+}
+
+/** The owner creates an administrator, invites them, and the invitation is accepted: returns that admin's client. */
+export async function createAdmin(
+  ctx: TestContext,
+  owner: Client,
+  options: { email?: string; password?: string; permissions?: Record<string, boolean> } = {},
+): Promise<AdminHandle> {
+  const email = options.email ?? `admin${Math.random().toString(36).slice(2, 8)}@example.com`
+  const password = options.password ?? 'admin password 123'
+  const created = await owner.post('/api/employees', { name: 'Ada', last_name: 'Admin', role: 'admin' })
+  if (created.status !== 201) throw new Error(`could not create admin: ${JSON.stringify(created.body)}`)
+  const employeeId = created.body.id as string
+  const invite = await owner.post(`/api/employees/${employeeId}/invite`, { email })
+  if (invite.status !== 200) throw new Error(`could not invite: ${JSON.stringify(invite.body)}`)
+  const token = new URL(invite.body.link).searchParams.get('token')
+  const client = new Client(ctx.app)
+  const accepted = await client.post('/api/auth/accept-invite', { token, password })
+  if (accepted.status !== 200) throw new Error(`could not accept invite: ${JSON.stringify(accepted.body)}`)
+  for (const [permission, value] of Object.entries(options.permissions ?? {})) {
+    const response = await owner.put(`/api/employees/${employeeId}/permissions`, { permission, value })
+    if (response.status !== 200) throw new Error(`could not set permission: ${JSON.stringify(response.body)}`)
+  }
+  return { client, employeeId, email, password }
 }
 
 /** Runs the first-time setup and returns a client signed in as the owner. */
