@@ -11,6 +11,10 @@ coverage/
 !.env.example
 !.env.*.example
 
+# Runtime data (uploaded files) created next to the server when DATA_DIR is not set
+data/
+/server/data/
+
 # Logs
 *.log
 npm-debug.log*
