@@ -227,18 +227,6 @@ export const attendanceRecords = pgTable(
   ],
 )
 
-export const attendanceAudit = pgTable('attendance_audit', {
-  id: id(),
-  // Not a foreign key: the audit trail must outlive the record it describes.
-  attendanceRecordId: uuid('attendance_record_id'),
-  action: text('action').notNull(),
-  changedBy: uuid('changed_by').references(() => users.id, { onDelete: 'set null' }),
-  changedAt: timestamp('changed_at', { withTimezone: true }).notNull().defaultNow(),
-  oldValues: jsonb('old_values'),
-  newValues: jsonb('new_values'),
-  reason: text('reason'),
-})
-
 export const geoBlockedAttempts = pgTable(
   'geo_blocked_attempts',
   {

@@ -19,7 +19,10 @@ export interface TestContext {
 }
 
 /** A fresh, isolated database and app for one test file. */
-export async function createTestApp(env: Record<string, string> = {}): Promise<TestContext> {
+export async function createTestApp(
+  env: Record<string, string> = {},
+  options: { fetch?: typeof fetch } = {},
+): Promise<TestContext> {
   const dbName = `qras_test_${randomBytes(6).toString('hex')}`
   const admin = new pg.Client({ connectionString: ADMIN_URL })
   await admin.connect()
@@ -38,7 +41,7 @@ export async function createTestApp(env: Record<string, string> = {}): Promise<T
   })
   const pool = createPool(config.databaseUrl)
   await runMigrations(pool)
-  const app = await buildApp({ config, pool })
+  const app = await buildApp({ config, pool, ...(options.fetch ? { fetch: options.fetch } : {}) })
   await app.ready()
 
   return {

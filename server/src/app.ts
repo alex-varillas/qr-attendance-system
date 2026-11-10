@@ -17,11 +17,12 @@ import { registerRoutes } from './routes/index.ts'
 export interface AppDeps {
   config: Config
   pool: pg.Pool
+  fetch?: typeof fetch
 }
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 
-export async function buildApp({ config, pool }: AppDeps): Promise<FastifyInstance> {
+export async function buildApp({ config, pool, fetch: fetchFn }: AppDeps): Promise<FastifyInstance> {
   const app = Fastify({
     logger: config.logLevel === 'silent' ? false : { level: config.logLevel },
     trustProxy: config.trustProxy,
@@ -31,6 +32,7 @@ export async function buildApp({ config, pool }: AppDeps): Promise<FastifyInstan
   app.decorate('pool', pool)
   app.decorate('config', config)
   app.decorate('events', new EventHub())
+  app.decorate('fetchFn', fetchFn ?? fetch)
   app.decorate('routeTable', [])
   app.decorateRequest('auth', null)
 

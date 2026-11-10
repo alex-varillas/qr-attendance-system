@@ -1,5 +1,5 @@
 {
-  "id": "fff5ab83-b608-473d-9147-86d13b179efd",
+  "id": "ef02d845-02f8-4689-ac89-c7789e18b111",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -132,83 +132,6 @@
           "value": "\"absence_justifications\".\"type\" IN ('permiso_con_goce', 'permiso_sin_goce', 'vacaciones', 'descanso_medico', 'licencia', 'suspension', 'comision_servicio', 'otro')"
         }
       },
-      "isRLSEnabled": false
-    },
-    "public.attendance_audit": {
-      "name": "attendance_audit",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "attendance_record_id": {
-          "name": "attendance_record_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "action": {
-          "name": "action",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "changed_by": {
-          "name": "changed_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "changed_at": {
-          "name": "changed_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "old_values": {
-          "name": "old_values",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "new_values": {
-          "name": "new_values",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reason": {
-          "name": "reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "attendance_audit_changed_by_users_id_fk": {
-          "name": "attendance_audit_changed_by_users_id_fk",
-          "tableFrom": "attendance_audit",
-          "tableTo": "users",
-          "columnsFrom": [
-            "changed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.attendance_records": {

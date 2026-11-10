@@ -15,17 +15,6 @@ CREATE TABLE "absence_justifications" (
 	CONSTRAINT "absence_justifications_type_check" CHECK ("absence_justifications"."type" IN ('permiso_con_goce', 'permiso_sin_goce', 'vacaciones', 'descanso_medico', 'licencia', 'suspension', 'comision_servicio', 'otro'))
 );
 --> statement-breakpoint
-CREATE TABLE "attendance_audit" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"attendance_record_id" uuid,
-	"action" text NOT NULL,
-	"changed_by" uuid,
-	"changed_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"old_values" jsonb,
-	"new_values" jsonb,
-	"reason" text
-);
---> statement-breakpoint
 CREATE TABLE "attendance_records" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"employee_id" uuid NOT NULL,
@@ -236,7 +225,6 @@ CREATE TABLE "vacation_adjustments" (
 --> statement-breakpoint
 ALTER TABLE "absence_justifications" ADD CONSTRAINT "absence_justifications_employee_id_employees_id_fk" FOREIGN KEY ("employee_id") REFERENCES "public"."employees"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "absence_justifications" ADD CONSTRAINT "absence_justifications_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "attendance_audit" ADD CONSTRAINT "attendance_audit_changed_by_users_id_fk" FOREIGN KEY ("changed_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "attendance_records" ADD CONSTRAINT "attendance_records_employee_id_employees_id_fk" FOREIGN KEY ("employee_id") REFERENCES "public"."employees"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "attendance_records" ADD CONSTRAINT "attendance_records_location_id_locations_id_fk" FOREIGN KEY ("location_id") REFERENCES "public"."locations"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "attendance_records" ADD CONSTRAINT "attendance_records_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint

@@ -131,6 +131,8 @@ declare module 'fastify' {
     pool: pg.Pool
     config: import('./config.ts').Config
     events: import('./lib/events.ts').EventHub
+    /** HTTP client for outgoing requests. Replaced in tests so nothing touches the network. */
+    fetchFn: typeof fetch
     routeTable: { method: string; url: string; public: boolean }[]
   }
   interface FastifyContextConfig {

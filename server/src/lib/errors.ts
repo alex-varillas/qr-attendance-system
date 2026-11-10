@@ -17,3 +17,4 @@ export const forbidden = (message = 'You do not have permission to do this') =>
   new HttpError(403, message, 'forbidden')
 export const notFound = (message = 'Not found') => new HttpError(404, message, 'not_found')
 export const conflict = (message: string, code?: string) => new HttpError(409, message, code)
+export const badGateway = (message: string) => new HttpError(502, message, 'bad_gateway')
