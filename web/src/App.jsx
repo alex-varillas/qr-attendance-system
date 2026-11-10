@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './hooks/useAuth.jsx'
-import { ProtectedRoute, PublicRoute, SetupGate } from './components/layout/ProtectedRoute'
+import { OwnerRoute, ProtectedRoute, PublicRoute, SetupGate } from './components/layout/ProtectedRoute'
 import Login from './pages/auth/Login'
 import Setup from './pages/auth/Setup'
 import ForgotPassword from './pages/auth/ForgotPassword'
@@ -9,6 +9,9 @@ import AcceptInvite from './pages/auth/AcceptInvite'
 import AppLayout from './components/layout/AppLayout'
 import { ToastProvider } from './components/ui/Toast'
 import Employees from './pages/employees/Employees'
+import Checkin from './pages/checkin/Checkin'
+import QrCode from './pages/qr/QrCode'
+import Locations from './pages/locations/Locations'
 import Home from './pages/Home'
 
 function AppPage({ children }) {
@@ -35,9 +38,16 @@ export default function App() {
           <Route path="/reset-password" element={<SetupGate><ResetPassword /></SetupGate>} />
           <Route path="/accept-invite" element={<SetupGate><AcceptInvite /></SetupGate>} />
 
+          {/* The screen employees open by scanning the QR code (no account needed) */}
+          <Route path="/checkin/:checkinId" element={<Checkin />} />
+
           {/* Signed-in pages */}
           <Route path="/dashboard" element={<AppPage><Home /></AppPage>} />
           <Route path="/employees" element={<AppPage><Employees /></AppPage>} />
+
+          {/* Owner only */}
+          <Route path="/qr" element={<AppPage><OwnerRoute><QrCode /></OwnerRoute></AppPage>} />
+          <Route path="/locations" element={<AppPage><OwnerRoute><Locations /></OwnerRoute></AppPage>} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
