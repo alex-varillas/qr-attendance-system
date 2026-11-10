@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { staggerContainer, staggerItem, slideUp } from '../../utils/animations'
+import { staggerContainer, staggerItem } from '../../utils/animations'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { useEmployees } from '../../hooks/useEmployees'
 import { useSchedules } from '../../hooks/useSchedules'
 import { useScheduleExceptions } from '../../hooks/useScheduleExceptions'
 import { useAttendance } from '../../hooks/useAttendance'
 import { useNow } from '../../hooks/useNow'
-import { CAL_MONTHS, CAL_DAYS, calMonthData, toISODate } from '../../components/ui/Calendar'
+import { calMonthData, toISODate } from '../../components/ui/Calendar'
 import ExportModal from '../../components/ui/ExportModal'
 import JustificationModal from '../../components/ui/JustificationModal'
 import { useJustifications } from '../../hooks/useJustifications'
@@ -31,7 +31,8 @@ import {
   formatMinutes,
   timeToMinutes,
 } from '../../utils/attendance'
-import { todayISO, formatTime, extractTime, getAppTimezone } from '../../utils/dates'
+import { todayISO, formatTime, extractTime, getAppTimezone, monthName, weekdayShort, weekdayInitials } from '../../utils/dates'
+import { t } from '../../i18n'
 
 // ─── Sub-componente: fila de la tabla ───────────────────────────────────────
 function AttendanceRow({ emp, empRecords, schedule, tieneHorario, now, isToday, toleranceMinutes, justification, isAdmin, onJustify, isHoliday, showSedeCol, sedeLabel, rowIndex }) {
@@ -134,7 +135,7 @@ function AttendanceRow({ emp, empRecords, schedule, tieneHorario, now, isToday, 
             <button
               onClick={() => onJustify(emp, justification ?? null)}
               className="text-xs text-slate-400 hover:text-blue-600 transition-colors"
-              title={estadoFinal === 'justificado' ? 'Editar justificación' : 'Justificar ausencia'}
+              title={estadoFinal === 'justificado' ? t('Editar justificación') : t('Justificar ausencia')}
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -185,7 +186,7 @@ function AttendanceRow({ emp, empRecords, schedule, tieneHorario, now, isToday, 
         {tardanza === null
           ? <Dash />
           : tardanza === 0
-            ? <span className="text-green-600 text-xs font-medium">A tiempo</span>
+            ? <span className="text-green-600 text-xs font-medium">{t('A tiempo')}</span>
             : <span className="text-red-600 text-xs font-medium">+{minutesToReadable(tardanza)}</span>
         }
       </td>
@@ -214,7 +215,7 @@ function AttendanceRow({ emp, empRecords, schedule, tieneHorario, now, isToday, 
         {difHorario === null
           ? <Dash />
           : difHorario === 0
-            ? <span className="text-green-600 text-xs">A tiempo</span>
+            ? <span className="text-green-600 text-xs">{t('A tiempo')}</span>
             : <span className={`text-xs font-medium ${difHorario > 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {formatMinutes(difHorario)}
               </span>
@@ -240,10 +241,10 @@ function EstadoBadge({ estado }) {
   }
   const labels = {
     ...ESTADO_LABELS,
-    justificado:       'Justificado',
-    feriado:           'Feriado',
-    feriado_trabajado: 'Feriado trabajado',
-    overtime:          'Horas extra',
+    justificado:       t('Justificado'),
+    feriado:           t('Feriado'),
+    feriado_trabajado: t('Feriado trabajado'),
+    overtime:          t('Horas extra'),
   }
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${styles[estado] ?? ''}`}>
@@ -258,12 +259,12 @@ function Dash() {
 
 // Marcación fuera del radio permitido (location_valid = false en el backend).
 // Tooltip propio (no el `title` nativo del navegador, que es inconsistente y
-// suele tardar en aparecer). Antes solo aparecía al pasar el cursor —
+// suele tardar en aparecer). Antes solo aparecía al pasar el cursor -
 // invisible para teclado/táctil; ahora es un <button> enfocable con
 // aria-label (lo anuncia un lector de pantalla de inmediato, sin depender de
 // hover) y el tooltip visual también aparece con group-focus, no solo hover.
 function FueraDeRangoIcon() {
-  const label = 'Este empleado marcó (o pudo haber marcado) fuera del radio permitido'
+  const label = t('Este empleado marcó (o pudo haber marcado) fuera del radio permitido')
   return (
     <button
       type="button"
@@ -285,8 +286,6 @@ function FueraDeRangoIcon() {
 }
 
 // ─── Date picker con calendario custom ───────────────────────────────────────
-const DAYS_ES    = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
-const MONTHS_ES  = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
 function formatDateLabel(dateStr) {
   if (!dateStr) return ''
@@ -294,10 +293,10 @@ function formatDateLabel(dateStr) {
   const today    = todayISO()
   const thisYear = new Date().getFullYear()
   const day      = date.getDate()
-  const month    = MONTHS_ES[date.getMonth()]
+  const month    = monthName(date.getMonth(), true)
   const year     = date.getFullYear()
-  const dow      = DAYS_ES[date.getDay()]
-  if (dateStr === today) return `Hoy, ${day} ${month}`
+  const dow      = weekdayShort(date.getDay())
+  if (dateStr === today) return t('Hoy, {0} {1}', [day, month])
   if (year === thisYear) return `${dow} ${day} ${month}`
   return `${day} ${month} ${year}`
 }
@@ -383,7 +382,7 @@ function DatePicker({ value, onChange }) {
                 </svg>
               </button>
               <span className="text-sm font-semibold text-slate-800 select-none">
-                {CAL_MONTHS[vm]} {vy}
+                {monthName(vm)} {vy}
               </span>
               <button onClick={nextMonth} disabled={!canNext}
                 className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed">
@@ -395,7 +394,7 @@ function DatePicker({ value, onChange }) {
 
             {/* Day headers */}
             <div className="grid grid-cols-7 px-3 mb-0.5">
-              {CAL_DAYS.map((d, i) => (
+              {weekdayInitials().map((d, i) => (
                 <div key={i} className="h-8 flex items-center justify-center text-[11px] font-semibold text-slate-400 uppercase tracking-wide">{d}</div>
               ))}
             </div>
@@ -435,7 +434,7 @@ function DatePicker({ value, onChange }) {
                 onClick={() => { onChange(today); setOpen(false) }}
                 className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
               >
-                Ir a hoy
+                {t('Ir a hoy')}
               </button>
             </div>
           </motion.div>
@@ -511,12 +510,11 @@ export default function Dashboard() {
   }, [activeEmployees, recordsByEmployee, selectedSede, selectedDept])
 
   function sedeName(locationId) {
-    if (!locationId) return 'Sin sede'
+    if (!locationId) return t('Sin sede')
     return locations.find(l => l.id === locationId)?.name ?? '-'
   }
 
   // KPIs
-  const isSelectedDayHoliday = holidayDates.has(selectedDate)
   const nowMinutesKpi = (() => {
     if (!isToday) return null
     const localTime = new Date(now).toLocaleTimeString('en-US', { timeZone: getAppTimezone(), hour: '2-digit', minute: '2-digit', hour12: false })
@@ -582,7 +580,7 @@ export default function Dashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                {activeEmployees.length} empleados
+                {activeEmployees.length}{' '}{t('empleados')}
               </span>
               <span className="w-px h-3 bg-slate-200" />
               <span className="flex items-center gap-1.5 text-xs text-slate-500">
@@ -590,7 +588,7 @@ export default function Dashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Tiempo real
+                {t('Tiempo real')}
               </span>
               {isToday && (
                 <>
@@ -600,7 +598,7 @@ export default function Dashboard() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
                     </span>
-                    En vivo
+                    {t('En vivo')}
                   </span>
                 </>
               )}
@@ -616,13 +614,13 @@ export default function Dashboard() {
           <button
             onClick={() => setExportOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300"
-            title="Exportar reporte"
+            title={t('Exportar reporte')}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            <span className="hidden sm:inline">Exportar</span>
+            <span className="hidden sm:inline">{t('Exportar')}</span>
           </button>
         </div>
       </div>
@@ -634,20 +632,20 @@ export default function Dashboard() {
       >
         <motion.div variants={staggerItem} className="bg-white rounded-xl border border-slate-200 p-4 text-center">
           <p className="text-2xl font-bold text-slate-900">{kpis.presentes}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Presentes</p>
+          <p className="text-xs text-slate-500 mt-0.5">{t('Presentes')}</p>
         </motion.div>
         <motion.div variants={staggerItem} className="bg-white rounded-xl border border-slate-200 p-4 text-center">
           <p className="text-2xl font-bold text-rose-600">{kpis.faltas}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Faltas</p>
+          <p className="text-xs text-slate-500 mt-0.5">{t('Faltas')}</p>
         </motion.div>
         <motion.div variants={staggerItem} className="bg-white rounded-xl border border-slate-200 p-4 text-center">
           <p className="text-2xl font-bold text-amber-500">{kpis.pendientes}</p>
-          <p className="text-xs text-slate-500 mt-0.5">Pendientes</p>
+          <p className="text-xs text-slate-500 mt-0.5">{t('Pendientes')}</p>
         </motion.div>
         {kpis.feriadosTrabajados > 0 && (
           <motion.div variants={staggerItem} className="bg-violet-50 rounded-xl border border-violet-200 p-4 text-center">
             <p className="text-2xl font-bold text-violet-700">{kpis.feriadosTrabajados}</p>
-            <p className="text-xs text-violet-500 mt-0.5">En feriado</p>
+            <p className="text-xs text-violet-500 mt-0.5">{t('En feriado')}</p>
           </motion.div>
         )}
       </motion.div>
@@ -659,11 +657,11 @@ export default function Dashboard() {
             <FilterSelect
               value={selectedSede}
               onChange={setSelectedSede}
-              placeholder="Todas las sedes"
+              placeholder={t('Todas las sedes')}
               options={[
-                { value: '', label: 'Todas las sedes' },
+                { value: '', label: t('Todas las sedes') },
                 ...locations.map(loc => ({ value: loc.id, label: loc.name })),
-                { value: 'none', label: 'Sin sede (QR general)' },
+                { value: 'none', label: t('Sin sede (QR general)') },
               ]}
               icon={
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -677,9 +675,9 @@ export default function Dashboard() {
             <FilterSelect
               value={selectedDept}
               onChange={setSelectedDept}
-              placeholder="Todas las áreas"
+              placeholder={t('Todas las áreas')}
               options={[
-                { value: '', label: 'Todas las áreas' },
+                { value: '', label: t('Todas las áreas') },
                 ...departments.map(d => ({ value: d.id, label: d.name })),
               ]}
               icon={
@@ -695,7 +693,7 @@ export default function Dashboard() {
               onClick={() => { setSelectedSede(''); setSelectedDept('') }}
               className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
             >
-              Limpiar filtros
+              {t('Limpiar filtros')}
             </button>
           )}
         </div>
@@ -705,15 +703,15 @@ export default function Dashboard() {
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {isLoading ? (
           <div className="py-16 text-center">
-            <p className="text-slate-400 text-sm">Cargando...</p>
+            <p className="text-slate-400 text-sm">{t('Cargando...')}</p>
           </div>
         ) : filteredEmployees.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-slate-500 text-sm font-medium">
-              {selectedSede ? 'Sin empleados en esta sede para este día' : 'No hay empleados activos'}
+              {selectedSede ? t('Sin empleados en esta sede para este día') : t('No hay empleados activos')}
             </p>
             <p className="text-slate-400 text-xs mt-1">
-              {selectedSede ? 'Prueba seleccionando otra sede o "Todas las sedes"' : 'Agrega empleados desde la sección Empleados'}
+              {selectedSede ? t('Prueba seleccionando otra sede o "Todas las sedes"') : t('Agrega empleados desde la sección Empleados')}
             </p>
           </div>
         ) : (
@@ -722,22 +720,22 @@ export default function Dashboard() {
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
               </svg>
-              Desliza para ver más columnas
+              {t('Desliza para ver más columnas')}
             </p>
             <table className="w-full text-sm min-w-[760px] sm:min-w-[900px]">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
-                  <th className="px-3 py-3 text-left font-medium sticky left-0 z-20 bg-slate-50">Empleado</th>
-                  <th className="px-3 py-3 text-left font-medium">Estado</th>
-                  {showSedeCol && <th className="px-3 py-3 text-left font-medium">Sede</th>}
-                  <th className="px-3 py-3 text-left font-medium">Entrada</th>
-                  <th className="px-3 py-3 text-left font-medium">Ini. Refrig.</th>
-                  <th className="px-3 py-3 text-left font-medium">Fin Refrig.</th>
-                  <th className="px-3 py-3 text-left font-medium">Salida</th>
-                  <th className="px-3 py-3 text-left font-medium">Tardanza</th>
-                  <th className="px-3 py-3 text-left font-medium">Exc. Refrig.</th>
-                  <th className="px-3 py-3 text-left font-medium">Total hrs</th>
-                  <th className="px-3 py-3 text-left font-medium">Dif. horario</th>
+                  <th className="px-3 py-3 text-left font-medium sticky left-0 z-20 bg-slate-50">{t('Empleado')}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t('Estado')}</th>
+                  {showSedeCol && <th className="px-3 py-3 text-left font-medium">{t('Sede')}</th>}
+                  <th className="px-3 py-3 text-left font-medium">{t('Entrada')}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t('Ini. Refrig.')}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t('Fin Refrig.')}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t('Salida')}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t('Tardanza')}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t('Exc. Refrig.')}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t('Total hrs')}</th>
+                  <th className="px-3 py-3 text-left font-medium">{t('Dif. horario')}</th>
                 </tr>
               </thead>
               <tbody>

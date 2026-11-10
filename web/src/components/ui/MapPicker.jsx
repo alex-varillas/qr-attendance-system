@@ -6,6 +6,7 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerIcon from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import { api } from '../../lib/api'
+import { t } from '../../i18n'
 
 // Fix ícono de Leaflet con Vite
 delete L.Icon.Default.prototype._getIconUrl
@@ -70,18 +71,18 @@ export default function MapPicker({ lat, lng, radius = 100, defaultCenter = null
       if (id !== reqIdRef.current) return // llegó tarde: ya hay una búsqueda más nueva
       if (data?.error) {
         setSuggestions([])
-        setSearchError('No pudimos buscar la dirección ahora. Intenta de nuevo o haz clic en el mapa.')
+        setSearchError(t('No pudimos buscar la dirección ahora. Intenta de nuevo o haz clic en el mapa.'))
         return
       }
       const found = data?.results ?? []
       setSuggestions(found)
       if (!found.length) {
-        setSearchError('No se encontró esa dirección. Prueba con otra o haz clic en el mapa.')
+        setSearchError(t('No se encontró esa dirección. Prueba con otra o haz clic en el mapa.'))
       }
     } catch {
       if (id !== reqIdRef.current) return
       setSuggestions([])
-      setSearchError('No pudimos buscar la dirección ahora. Intenta de nuevo o haz clic en el mapa.')
+      setSearchError(t('No pudimos buscar la dirección ahora. Intenta de nuevo o haz clic en el mapa.'))
     } finally {
       if (id === reqIdRef.current) setSearching(false)
     }
@@ -111,11 +112,12 @@ export default function MapPicker({ lat, lng, radius = 100, defaultCenter = null
   // Limpiar el timer pendiente al desmontar
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current) }, [])
 
-  // Centrar mapa cuando cambian las coordenadas desde fuera
+  // Centrar mapa cuando cambian las coordenadas desde fuera (hasPin sale de lat y lng)
   useEffect(() => {
     if (hasPin && mapRef.current) {
       mapRef.current.setView([lat, lng], mapRef.current.getZoom())
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lat, lng])
 
   // Leaflet calcula su tamaño una sola vez al montar. Si el layout de la
@@ -145,7 +147,7 @@ export default function MapPicker({ lat, lng, radius = 100, defaultCenter = null
           type="text"
           value={searchQuery}
           onChange={e => handleQueryChange(e.target.value)}
-          placeholder="Escribe la dirección de tu local..."
+          placeholder={t('Escribe la dirección de tu local...')}
           autoComplete="off"
           className="w-full px-3 py-2 pr-9 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
@@ -205,8 +207,8 @@ export default function MapPicker({ lat, lng, radius = 100, defaultCenter = null
 
       <p className="text-xs text-slate-400">
         {hasPin
-          ? `Pin colocado: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
-          : 'Escribe tu dirección y elige una opción, o haz clic en el mapa para marcar la ubicación de tu local'}
+          ? t('Pin colocado: {0}, {1}', [lat.toFixed(6), lng.toFixed(6)])
+          : t('Escribe tu dirección y elige una opción, o haz clic en el mapa para marcar la ubicación de tu local')}
       </p>
     </div>
   )

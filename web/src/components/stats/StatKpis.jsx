@@ -1,4 +1,5 @@
 import { minutesToReadable } from '../../utils/attendance'
+import { t } from '../../i18n'
 
 /**
  * Tarjetas resumen del período. Props: kpis (de computeEmployeeStats).
@@ -8,24 +9,24 @@ export default function StatKpis({ kpis }) {
 
   const cards = [
     {
-      label: 'Asistencia',
+      label: t('Asistencia'),
       value: kpis.asistenciaPct != null ? `${kpis.asistenciaPct}%` : '-',
-      sub: `${kpis.diasLaborables} días laborables`,
+      sub: t('{0} días laborables', [kpis.diasLaborables]),
     },
     {
-      label: 'Tardanzas',
+      label: t('Tardanzas'),
       value: kpis.tardanzasCount,
-      sub: `${minutesToReadable(kpis.tardanzasMin)} acumulado`,
+      sub: t('{0} acumulado', [minutesToReadable(kpis.tardanzasMin)]),
     },
     {
-      label: 'Horas trabajadas',
+      label: t('Horas trabajadas'),
       value: minutesToReadable(kpis.horasMin),
-      sub: 'en el mes',
+      sub: t('en el mes'),
     },
     {
-      label: 'Faltas',
+      label: t('Faltas'),
       value: kpis.faltas,
-      sub: 'sin justificar',
+      sub: t('sin justificar'),
     },
   ]
 

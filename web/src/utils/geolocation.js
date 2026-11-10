@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js'
 // Pide la ubicación del dispositivo para el check-in.
 //
 // Regla: cuando la empresa/sede tiene la verificación de ubicación activada
@@ -14,10 +15,10 @@
 // permitido, la ubicación se lee igual, en silencio, en cada marcación.
 
 export const GEO_MESSAGES = {
-  unsupported: 'Tu dispositivo no soporta geolocalización.',
-  denied: 'Debes permitir el acceso a tu ubicación para registrar asistencia. Activa el permiso en tu navegador e intenta nuevamente.',
-  unavailable: 'No pudimos obtener tu ubicación. Activa la ubicación (GPS) de tu dispositivo e intenta nuevamente.',
-  timeout: 'Tardó demasiado en obtener tu ubicación. Acércate a una ventana o al exterior e intenta nuevamente.',
+  get unsupported() { return t('Tu dispositivo no soporta geolocalización.') },
+  get denied() { return t('Debes permitir el acceso a tu ubicación para registrar asistencia. Activa el permiso en tu navegador e intenta nuevamente.') },
+  get unavailable() { return t('No pudimos obtener tu ubicación. Activa la ubicación (GPS) de tu dispositivo e intenta nuevamente.') },
+  get timeout() { return t('Tardó demasiado en obtener tu ubicación. Acércate a una ventana o al exterior e intenta nuevamente.') },
 }
 
 const GEO_OPTIONS = { timeout: 8000, maximumAge: 0 }
@@ -45,7 +46,7 @@ export async function requestLocation(required, geolocation = globalThis.navigat
     )
     const { latitude, longitude, accuracy } = pos?.coords ?? {}
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-      throw Object.assign(new Error('coordenadas inválidas'), { code: 2 })
+      throw Object.assign(new Error(t('coordenadas inválidas')), { code: 2 })
     }
     return { lat: latitude, lng: longitude, accuracy: Number.isFinite(accuracy) ? accuracy : null }
   } catch (err) {

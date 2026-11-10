@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import AuthLayout from '../../components/layout/AuthLayout'
 import { BRAND_GRADIENT } from '../../utils/theme'
+import { t } from '../../i18n'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -18,7 +19,7 @@ export default function ForgotPassword() {
     try {
       setResult(await api.post('/auth/forgot-password', { email }))
     } catch {
-      setError('No se pudo procesar la solicitud. Inténtalo de nuevo.')
+      setError(t('No se pudo procesar la solicitud. Inténtalo de nuevo.'))
     } finally {
       setLoading(false)
     }
@@ -31,9 +32,9 @@ export default function ForgotPassword() {
           className="text-2xl font-bold text-slate-900"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
-          Recupera tu contraseña
+          {t('Recupera tu contraseña')}
         </h1>
-        <p className="text-slate-500 text-sm mt-1">Te ayudamos a volver a entrar</p>
+        <p className="text-slate-500 text-sm mt-1">{t('Te ayudamos a volver a entrar')}</p>
       </div>
 
       {result?.email_configured ? (
@@ -44,30 +45,29 @@ export default function ForgotPassword() {
             </svg>
           </div>
           <div>
-            <p className="font-semibold text-slate-800 text-sm">Revisa tu correo</p>
+            <p className="font-semibold text-slate-800 text-sm">{t('Revisa tu correo')}</p>
             <p className="text-slate-500 text-sm mt-1">
-              Si <strong>{email}</strong> tiene una cuenta, te enviamos un enlace para crear una nueva contraseña.
+              {t('Si')}{' '}<strong>{email}</strong>{' '}{t('tiene una cuenta, te enviamos un enlace para crear una nueva contraseña.')}
             </p>
           </div>
-          <p className="text-xs text-slate-400">¿No lo ves? Revisa la carpeta de spam.</p>
+          <p className="text-xs text-slate-400">{t('¿No lo ves? Revisa la carpeta de spam.')}</p>
         </div>
       ) : result ? (
         <div className="space-y-3 text-sm text-slate-600">
-          <p className="font-semibold text-slate-800">Este sistema no envía correos.</p>
+          <p className="font-semibold text-slate-800">{t('Este sistema no envía correos.')}</p>
           <p>
-            Pídele al dueño del negocio un enlace para crear una nueva contraseña: puede generarlo desde la
-            pantalla de Empleados.
+            {t('Pídele al dueño del negocio un enlace para crear una nueva contraseña: puede generarlo desde la pantalla de Empleados.')}
           </p>
           <p>
-            Si eres el dueño, ejecuta este comando en el servidor y abre el enlace que muestra:
+            {t('Si eres el dueño, ejecuta este comando en el servidor y abre el enlace que muestra:')}
           </p>
-          <pre className="bg-slate-100 rounded-lg px-3 py-2 text-xs overflow-x-auto">npm run reset-password -- {email || 'tu@correo.com'}</pre>
+          <pre className="bg-slate-100 rounded-lg px-3 py-2 text-xs overflow-x-auto">npm run reset-password -- {email || t('tu@correo.com')}</pre>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-              Correo electrónico
+              {t('Correo electrónico')}
             </label>
             <input
               id="email"
@@ -76,7 +76,7 @@ export default function ForgotPassword() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="tu@correo.com"
+              placeholder={t('tu@correo.com')}
             />
           </div>
 
@@ -88,14 +88,14 @@ export default function ForgotPassword() {
             className="w-full text-white font-medium py-2 px-4 rounded-lg text-sm transition-all disabled:opacity-50 hover:brightness-95"
             style={{ background: BRAND_GRADIENT }}
           >
-            {loading ? 'Enviando...' : 'Continuar'}
+            {loading ? t('Enviando...') : t('Continuar')}
           </button>
         </form>
       )}
 
       <p className="text-center text-sm text-slate-500 mt-6">
         <Link to="/login" className="text-blue-600 hover:underline font-medium">
-          Volver al inicio de sesión
+          {t('Volver al inicio de sesión')}
         </Link>
       </p>
     </AuthLayout>

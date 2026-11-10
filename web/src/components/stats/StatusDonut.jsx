@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { STAT_CATEGORIES } from '../../utils/employeeStats'
+import { t } from '../../i18n'
 
 /**
  * Dona de distribución de días por categoría. Props: distribucion (de computeEmployeeStats).
@@ -15,9 +16,9 @@ export default function StatusDonut({ distribucion = [] }) {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
-      <h3 className="text-sm font-semibold text-slate-800 mb-4">Distribución de días</h3>
+      <h3 className="text-sm font-semibold text-slate-800 mb-4">{t('Distribución de días')}</h3>
       {total === 0 ? (
-        <p className="text-sm text-slate-400 py-10 text-center">Sin datos en este mes.</p>
+        <p className="text-sm text-slate-400 py-10 text-center">{t('Sin datos en este mes.')}</p>
       ) : (
         <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-3 sm:gap-4">
           {/* Dona con total al centro */}
@@ -28,14 +29,14 @@ export default function StatusDonut({ distribucion = [] }) {
                   {data.map((d, i) => <Cell key={i} fill={d.color} />)}
                 </Pie>
                 <Tooltip
-                  formatter={(v, n) => [`${v} días`, n]}
+                  formatter={(v, n) => [t('{0} días', [v]), n]}
                   contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}
                 />
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-2xl font-bold text-slate-900 leading-none">{total}</span>
-              <span className="text-[11px] text-slate-400 mt-0.5">días</span>
+              <span className="text-[11px] text-slate-400 mt-0.5">{t('días')}</span>
             </div>
           </div>
 

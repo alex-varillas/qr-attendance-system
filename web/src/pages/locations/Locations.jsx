@@ -4,9 +4,11 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { useLocations, useCreateLocation, useUpdateLocation } from '../../hooks/useLocations'
 import { useSchedules, useSetSchedules, useDeleteSchedule } from '../../hooks/useSchedules'
-import ScheduleBlocksEditor, { EMPTY_BLOCK, schedulesToBlocks, blocksToPayload, validateBlocks } from '../../components/ui/ScheduleBlocksEditor'
+import ScheduleBlocksEditor from '../../components/ui/ScheduleBlocksEditor'
+import { EMPTY_BLOCK, schedulesToBlocks, blocksToPayload, validateBlocks } from '../../utils/scheduleBlocks'
 import ExceptionsSection from '../../components/ui/ExceptionsSection'
 import Modal from '../../components/ui/Modal'
+import { t, tn } from '../../i18n'
 
 const MapPicker = lazy(() => import('../../components/ui/MapPicker'))
 
@@ -73,9 +75,9 @@ export default function Locations() {
   }
 
   async function handleSave() {
-    if (!form.name.trim()) { setFormError('El nombre es obligatorio'); return }
+    if (!form.name.trim()) { setFormError(t('El nombre es obligatorio')); return }
     if (form.geo_enabled && (form.lat == null || form.lng == null)) {
-      setFormError('Marca la ubicación de esta sede en el mapa antes de activar la verificación de ubicación.')
+      setFormError(t('Marca la ubicación de esta sede en el mapa antes de activar la verificación de ubicación.'))
       return
     }
     if (useSedeSchedule) {
@@ -111,7 +113,7 @@ export default function Locations() {
 
       setShowModal(false)
     } catch (err) {
-      setFormError(err.message ?? 'Error al guardar')
+      setFormError(err.message ?? t('Error al guardar'))
     } finally {
       setSaving(false)
     }
@@ -126,8 +128,8 @@ export default function Locations() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">Sedes</h1>
-          <p className="text-sm text-slate-500">{locations.length} sede{locations.length !== 1 ? 's' : ''} registrada{locations.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-lg font-semibold text-slate-900">{t('Sedes')}</h1>
+          <p className="text-sm text-slate-500">{tn(locations.length, '{0} sede registrada', '{0} sedes registradas')}</p>
         </div>
         {isOwner && (
           <button
@@ -137,7 +139,7 @@ export default function Locations() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Nueva sede
+            {t('Nueva sede')}
           </button>
         )}
       </div>
@@ -149,8 +151,7 @@ export default function Locations() {
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <p className="text-xs text-blue-700 leading-relaxed">
-          El <strong>QR general de la empresa</strong> (en "Código QR") sigue funcionando para marcaciones sin sede específica.
-          Cada sede aquí tiene su propio QR independiente.
+          {t('El')}{' '}<strong>{t('QR general de la empresa')}</strong>{' '}{t('(en "Código QR") sigue funcionando para marcaciones sin sede específica. Cada sede aquí tiene su propio QR independiente.')}
         </p>
       </div>
 
@@ -172,14 +173,14 @@ export default function Locations() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <p className="font-medium text-slate-700 mb-1">Aún no tienes sedes</p>
-          <p className="text-sm text-slate-400 mb-5">Crea tu primera sede para obtener su QR independiente.</p>
+          <p className="font-medium text-slate-700 mb-1">{t('Aún no tienes sedes')}</p>
+          <p className="text-sm text-slate-400 mb-5">{t('Crea tu primera sede para obtener su QR independiente.')}</p>
           {isOwner && (
             <button
               onClick={openCreate}
               className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
             >
-              Crear primera sede →
+              {t('Crear primera sede →')}
             </button>
           )}
         </div>
@@ -192,7 +193,6 @@ export default function Locations() {
             <LocationCard
               key={loc.id}
               location={loc}
-              business={business}
               isOwner={isOwner}
               onEdit={() => openEdit(loc)}
               onQr={() => setShowQrFor(loc)}
@@ -240,7 +240,7 @@ export default function Locations() {
 }
 
 /* ── LocationCard ─────────────────────────────────────────────────────────── */
-function LocationCard({ location, business, isOwner, onEdit, onQr, onToggle }) {
+function LocationCard({ location, isOwner, onEdit, onQr, onToggle }) {
   return (
     <div
       className={`bg-white rounded-xl border p-5 transition-opacity ${
@@ -254,14 +254,14 @@ function LocationCard({ location, business, isOwner, onEdit, onQr, onToggle }) {
           {location.address ? (
             <p className="text-xs text-slate-400 mt-0.5 truncate">{location.address}</p>
           ) : (
-            <p className="text-xs text-slate-300 mt-0.5 italic">Sin dirección</p>
+            <p className="text-xs text-slate-300 mt-0.5 italic">{t('Sin dirección')}</p>
           )}
         </div>
         <span className={`shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
           location.active ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-500'
         }`}>
           <span className={`w-1.5 h-1.5 rounded-full ${location.active ? 'bg-green-500' : 'bg-slate-400'}`} />
-          {location.active ? 'Activa' : 'Inactiva'}
+          {location.active ? t('Activa') : t('Inactiva')}
         </span>
       </div>
 
@@ -280,7 +280,7 @@ function LocationCard({ location, business, isOwner, onEdit, onQr, onToggle }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
           </svg>
-          Ver QR
+          {t('Ver QR')}
         </button>
 
         {isOwner && (
@@ -289,13 +289,13 @@ function LocationCard({ location, business, isOwner, onEdit, onQr, onToggle }) {
               onClick={onEdit}
               className="text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors"
             >
-              Editar
+              {t('Editar')}
             </button>
             <button
               onClick={onToggle}
               className="ml-auto text-xs font-medium text-slate-400 hover:text-slate-600 px-2 py-1.5 rounded-lg transition-colors"
             >
-              {location.active ? 'Desactivar' : 'Activar'}
+              {location.active ? t('Desactivar') : t('Activar')}
             </button>
           </>
         )}
@@ -334,37 +334,37 @@ function LocationModal({
   return (
     <Modal
       onClose={onClose}
-      ariaLabel={editing ? 'Editar sede' : 'Nueva sede'}
+      ariaLabel={editing ? t('Editar sede') : t('Nueva sede')}
       className="bg-white rounded-xl shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto"
     >
         <div className="p-6">
           <h2 className="text-base font-semibold text-slate-800 mb-5">
-            {editing ? 'Editar sede' : 'Nueva sede'}
+            {editing ? t('Editar sede') : t('Nueva sede')}
           </h2>
 
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                Nombre de la sede <span className="text-red-400">*</span>
+                {t('Nombre de la sede')}{' '}<span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="Ej: Sede Miraflores"
+                placeholder={t('Ej: Sede Central')}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
                 autoFocus
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                Dirección <span className="text-slate-400 font-normal">(opcional)</span>
+                {t('Dirección')}{' '}<span className="text-slate-400 font-normal">{t('(opcional)')}</span>
               </label>
               <input
                 type="text"
                 value={form.address}
                 onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                placeholder="Ej: Av. Larco 345, Miraflores"
+                placeholder={t('Ej: Av. Principal 345')}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
               />
             </div>
@@ -373,11 +373,11 @@ function LocationModal({
           {/* Geolocalización, propia de esta sede */}
           <div className="border-t border-slate-200 mt-5 pt-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-slate-700">Verificar ubicación al marcar</span>
+              <span className="text-sm font-medium text-slate-700">{t('Verificar ubicación al marcar')}</span>
               <ModalToggle
                 checked={form.geo_enabled}
                 onChange={v => setForm(f => ({ ...f, geo_enabled: v }))}
-                label={form.geo_enabled ? 'Activo' : 'Inactivo'}
+                label={form.geo_enabled ? t('Activo') : t('Inactivo')}
               />
             </div>
 
@@ -401,7 +401,7 @@ function LocationModal({
                     onChange={e => setForm(f => ({ ...f, geo_radius_meters: e.target.value }))}
                     className="w-24 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <span className="text-sm text-slate-500">metros desde el pin</span>
+                  <span className="text-sm text-slate-500">{t('metros desde el pin')}</span>
                 </div>
               </div>
             )}
@@ -410,15 +410,15 @@ function LocationModal({
           {/* Horario propio de esta sede */}
           <div className="border-t border-slate-200 mt-4 pt-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-slate-700">Horario</span>
+              <span className="text-sm font-medium text-slate-700">{t('Horario')}</span>
               <ModalToggle
                 checked={useSedeSchedule}
                 onChange={setUseSedeSchedule}
-                label="Horario propio de esta sede"
+                label={t('Horario propio de esta sede')}
               />
             </div>
             {!useSedeSchedule && (
-              <p className="text-xs text-slate-400">Se usará el horario general de la empresa.</p>
+              <p className="text-xs text-slate-400">{t('Se usará el horario general de la empresa.')}</p>
             )}
             {useSedeSchedule && (
               <div className="bg-slate-50 rounded-lg p-3">
@@ -443,14 +443,14 @@ function LocationModal({
               onClick={onClose}
               className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium py-2.5 rounded-lg text-sm transition-colors"
             >
-              Cancelar
+              {t('Cancelar')}
             </button>
             <button
               onClick={onSave}
               disabled={saving}
               className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
             >
-              {saving ? 'Guardando...' : editing ? 'Guardar cambios' : 'Crear sede'}
+              {saving ? t('Guardando...') : editing ? t('Guardar cambios') : t('Crear sede')}
             </button>
           </div>
         </div>
@@ -536,13 +536,13 @@ function QrModal({ location, business, onClose }) {
       // Logo Asistia (ícono + wordmark)
       const iconSize = 32
       ctx.font = '800 28px system-ui, -apple-system, sans-serif'
-      const wordW  = ctx.measureText('Asistia').width
+      const wordW  = ctx.measureText(t('Asistia')).width
       const logoX  = W / 2 - (iconSize + 10 + wordW) / 2
       const logoY  = base + 144
       ctx.drawImage(logoImg, logoX, logoY - iconSize + 4, iconSize, iconSize)
       ctx.fillStyle  = '#2E7DE9'
       ctx.textAlign  = 'left'
-      ctx.fillText('Asistia', logoX + iconSize + 10, logoY)
+      ctx.fillText(t('Asistia'), logoX + iconSize + 10, logoY)
 
       const link = document.createElement('a')
       link.download = `qr-${location.name.replace(/\s+/g, '-').toLowerCase()}.png`
@@ -552,7 +552,7 @@ function QrModal({ location, business, onClose }) {
   }
 
   return (
-    <Modal onClose={onClose} ariaLabel={`Código QR | ${location.name}`} className="bg-white rounded-xl shadow-lg w-full max-w-sm">
+    <Modal onClose={onClose} ariaLabel={t('Código QR | {0}', [location.name])} className="bg-white rounded-xl shadow-lg w-full max-w-sm">
         <div className="p-6">
           {/* Header modal */}
           <div className="flex items-center justify-between mb-5">
@@ -598,7 +598,7 @@ function QrModal({ location, business, onClose }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Descargar QR con nombre
+            {t('Descargar QR con nombre')}
           </button>
         </div>
     </Modal>

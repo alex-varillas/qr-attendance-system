@@ -12,6 +12,7 @@ import {
   resolveEstadoHoySinCheckin,
 } from './attendance'
 import { todayISO, getAppTimezone } from './dates'
+import { t } from '../i18n/index.js'
 
 const TIPOS = ['checkin', 'break_start', 'break_end', 'checkout']
 
@@ -20,15 +21,15 @@ const TIPOS = ['checkin', 'break_start', 'break_end', 'checkout']
  * Tailwind (heatmap / leyenda). Reutilizado por StatusDonut y MonthHeatmap.
  */
 export const STAT_CATEGORIES = {
-  asistio:           { label: 'Asistió',        hex: '#22c55e', bg: 'bg-emerald-200', text: 'text-emerald-800' },
-  tardanza:          { label: 'Tardanza',       hex: '#f59e0b', bg: 'bg-amber-200',   text: 'text-amber-800' },
-  pendiente:         { label: 'Pendiente',      hex: '#fbbf24', bg: 'bg-amber-100',   text: 'text-amber-700' },
-  falta:             { label: 'Falta',          hex: '#f43f5e', bg: 'bg-rose-200',    text: 'text-rose-800' },
-  permiso:           { label: 'Permiso',        hex: '#0ea5e9', bg: 'bg-sky-200',     text: 'text-sky-800' },
-  descanso:          { label: 'Descanso',       hex: '#cbd5e1', bg: 'bg-slate-200',   text: 'text-slate-600' },
-  feriado:           { label: 'Feriado',        hex: '#fb923c', bg: 'bg-orange-200',  text: 'text-orange-800' },
-  feriado_trabajado: { label: 'Feriado trab.',  hex: '#a78bfa', bg: 'bg-violet-200',  text: 'text-violet-800' },
-  no_iniciado:       { label: 'Aún no inicia',  hex: '#e2e8f0', bg: 'bg-slate-100',   text: 'text-slate-500' },
+  asistio:           { get label() { return t('Asistió') },        hex: '#22c55e', bg: 'bg-emerald-200', text: 'text-emerald-800' },
+  tardanza:          { get label() { return t('Tardanza') },       hex: '#f59e0b', bg: 'bg-amber-200',   text: 'text-amber-800' },
+  pendiente:         { get label() { return t('Pendiente') },      hex: '#fbbf24', bg: 'bg-amber-100',   text: 'text-amber-700' },
+  falta:             { get label() { return t('Falta') },          hex: '#f43f5e', bg: 'bg-rose-200',    text: 'text-rose-800' },
+  permiso:           { get label() { return t('Permiso') },        hex: '#0ea5e9', bg: 'bg-sky-200',     text: 'text-sky-800' },
+  descanso:          { get label() { return t('Descanso') },       hex: '#cbd5e1', bg: 'bg-slate-200',   text: 'text-slate-600' },
+  feriado:           { get label() { return t('Feriado') },        hex: '#fb923c', bg: 'bg-orange-200',  text: 'text-orange-800' },
+  feriado_trabajado: { get label() { return t('Feriado trab.') },  hex: '#a78bfa', bg: 'bg-violet-200',  text: 'text-violet-800' },
+  no_iniciado:       { get label() { return t('Aún no inicia') },  hex: '#e2e8f0', bg: 'bg-slate-100',   text: 'text-slate-500' },
   futuro:            { label: '-',              hex: '#f1f5f9', bg: 'bg-slate-50',    text: 'text-slate-300' },
 }
 
@@ -95,7 +96,7 @@ export function computeEmployeeStats(report, employeeId, from, to, tolerance = 5
     const isHoliday = holidaySet.has(date)
     const tieneCheckin = !!marks.checkin
 
-    const registrosDia = TIPOS.filter(t => marks[t]).map(type => ({ type }))
+    const registrosDia = TIPOS.filter(tipo => marks[tipo]).map(type => ({ type }))
     // Hoy sin checkin: distingue si el turno ya empezó o no, en vez de
     // marcar "falta" desde la medianoche (mismo ajuste que el Dashboard).
     let estado = (date === today && !tieneCheckin && schedule && !just)

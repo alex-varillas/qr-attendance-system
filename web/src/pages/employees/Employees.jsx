@@ -12,6 +12,7 @@ import Modal from '../../components/ui/Modal'
 import { useDepartments } from '../../hooks/useDepartments'
 import FilterSelect from '../../components/ui/FilterSelect'
 import { ROLE_LABELS } from '../../utils/labels'
+import { t } from '../../i18n'
 
 function RoleBadge({ role }) {
   const colors = {
@@ -72,12 +73,12 @@ export default function Employees() {
     try {
       const { link } = await resetLink.mutateAsync(emp.id)
       setLinkResult({
-        title: `Nuevo acceso para ${emp.name} ${emp.last_name}`,
-        description: 'Con este enlace elegirá una nueva contraseña. Sus sesiones abiertas se cerrarán.',
+        title: t('Nuevo acceso para {0} {1}', [emp.name, emp.last_name]),
+        description: t('Con este enlace elegirá una nueva contraseña. Sus sesiones abiertas se cerrarán.'),
         link,
       })
     } catch (err) {
-      setInviteErrors(s => ({ ...s, [emp.id]: err.message ?? 'No se pudo crear el enlace' }))
+      setInviteErrors(s => ({ ...s, [emp.id]: err.message ?? t('No se pudo crear el enlace') }))
     }
   }
 
@@ -100,15 +101,15 @@ export default function Employees() {
       setInviteState(s => ({ ...s, [emp.id]: 'sent' }))
       setInviteTarget(null)
       setLinkResult({
-        title: `Invitación para ${emp.name} ${emp.last_name}`,
-        description: 'Envíale este enlace para que cree su contraseña y entre como administrador.',
+        title: t('Invitación para {0} {1}', [emp.name, emp.last_name]),
+        description: t('Envíale este enlace para que cree su contraseña y entre como administrador.'),
         ...result,
       })
     } catch (err) {
       // Estado 'error' persistente y visible en la fila, si cierra el modal
       // sin reintentar, no se pierde el rastro del fallo.
       setInviteState(s => ({ ...s, [emp.id]: 'error' }))
-      setInviteErrors(s => ({ ...s, [emp.id]: err.message ?? 'No se pudo crear la invitación' }))
+      setInviteErrors(s => ({ ...s, [emp.id]: err.message ?? t('No se pudo crear la invitación') }))
     }
   }
 
@@ -117,9 +118,9 @@ export default function Employees() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">Empleados</h1>
+          <h1 className="text-lg font-semibold text-slate-900">{t('Empleados')}</h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            {activeCount} empleados activos
+            {activeCount}{' '}{t('empleados activos')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -130,7 +131,7 @@ export default function Employees() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
-            <span>Áreas</span>
+            <span>{t('Áreas')}</span>
           </button>
           <button
             onClick={() => setImportOpen(true)}
@@ -140,7 +141,7 @@ export default function Employees() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 12V4m0 0l-3 3m3-3l3 3" />
             </svg>
-            <span>Importar CSV</span>
+            <span>{t('Importar CSV')}</span>
           </button>
           <button
             onClick={handleAdd}
@@ -149,7 +150,7 @@ export default function Employees() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Agregar empleado
+            {t('Agregar empleado')}
           </button>
         </div>
       </div>
@@ -164,7 +165,7 @@ export default function Employees() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por nombre, documento o puesto..."
+            placeholder={t('Buscar por nombre, documento o puesto...')}
             className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -172,9 +173,9 @@ export default function Employees() {
           <FilterSelect
             value={deptFilter}
             onChange={setDeptFilter}
-            placeholder="Todas las áreas"
+            placeholder={t('Todas las áreas')}
             options={[
-              { value: '', label: 'Todas las áreas' },
+              { value: '', label: t('Todas las áreas') },
               ...departments.map(d => ({ value: d.id, label: d.name })),
             ]}
           />
@@ -186,26 +187,26 @@ export default function Employees() {
             onChange={e => setShowInactive(e.target.checked)}
             className="rounded border-slate-300"
           />
-          Mostrar inactivos
+          {t('Mostrar inactivos')}
         </label>
       </div>
 
       {/* Tabla */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {isLoading && (
-          <div className="p-8 text-center text-sm text-slate-500">Cargando empleados...</div>
+          <div className="p-8 text-center text-sm text-slate-500">{t('Cargando empleados...')}</div>
         )}
 
         {isError && (
           <div className="p-8 text-center text-sm text-rose-500">
-            Error al cargar empleados. Recarga la página.
+            {t('Error al cargar empleados. Recarga la página.')}
           </div>
         )}
 
         {!isLoading && !isError && filtered.length === 0 && (
           <div className="p-8 text-center">
             <p className="text-sm text-slate-500">
-              {search ? 'Sin resultados para esa búsqueda.' : 'Aún no hay empleados. Agrega el primero.'}
+              {search ? t('Sin resultados para esa búsqueda.') : t('Aún no hay empleados. Agrega el primero.')}
             </p>
           </div>
         )}
@@ -215,13 +216,13 @@ export default function Employees() {
           <table className="w-full text-sm min-w-[760px]">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Nombre</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Documento</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Puesto</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Área</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Rol</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">PIN</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">Estado</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">{t('Nombre')}</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">{t('Documento')}</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">{t('Puesto')}</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">{t('Área')}</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">{t('Rol')}</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">{t('PIN')}</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-slate-500 uppercase tracking-wide">{t('Estado')}</th>
                 <th className="px-4 py-3 w-px" />
               </tr>
             </thead>
@@ -245,14 +246,14 @@ export default function Employees() {
                   </td>
                   <td className="px-4 py-3">
                     {emp.pin_enabled
-                      ? <span className="text-green-600 text-xs font-medium">Activo</span>
-                      : <span className="text-slate-400 text-xs">Sin PIN</span>
+                      ? <span className="text-green-600 text-xs font-medium">{t('Activo')}</span>
+                      : <span className="text-slate-400 text-xs">{t('Sin PIN')}</span>
                     }
                   </td>
                   <td className="px-4 py-3">
                     {emp.active
-                      ? <span className="text-green-600 text-xs font-medium">Activo</span>
-                      : <span className="text-slate-400 text-xs">Inactivo</span>
+                      ? <span className="text-green-600 text-xs font-medium">{t('Activo')}</span>
+                      : <span className="text-slate-400 text-xs">{t('Inactivo')}</span>
                     }
                   </td>
                   <td className="px-4 py-3 w-px whitespace-nowrap">
@@ -265,13 +266,13 @@ export default function Employees() {
                             <div className="flex items-center gap-1.5">
                               <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                Acceso activo
+                                {t('Acceso activo')}
                               </span>
                               <button
                                 onClick={() => handleResetLink(emp)}
                                 className="text-xs font-medium text-violet-600 hover:underline shrink-0"
                               >
-                                Nuevo acceso
+                                {t('Nuevo acceso')}
                               </button>
                             </div>
                           ) : (inviteState[emp.id] === 'sent' || emp.invite_sent_at) ? (
@@ -280,7 +281,7 @@ export default function Employees() {
                               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                               </svg>
-                              Invitación pendiente
+                              {t('Invitación pendiente')}
                             </span>
                           ) : inviteState[emp.id] === 'error' ? (
                             // Invitación falló, queda visible con motivo y reintento
@@ -295,13 +296,13 @@ export default function Employees() {
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                     d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                                 </svg>
-                                No se pudo invitar
+                                {t('No se pudo invitar')}
                               </span>
                               <button
                                 onClick={() => setInviteTarget(emp)}
                                 className="text-xs font-medium text-violet-600 hover:underline shrink-0"
                               >
-                                Reintentar
+                                {t('Reintentar')}
                               </button>
                             </div>
                           ) : (
@@ -317,14 +318,14 @@ export default function Employees() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                   d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                               </svg>
-                              Invitar
+                              {t('Invitar')}
                             </button>
                           )
                         )}
                         <button
                           onClick={() => handleEdit(emp)}
                           className="text-slate-400 hover:text-blue-600 transition-colors"
-                          aria-label="Editar"
+                          aria-label={t('Editar')}
                         >
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -334,7 +335,7 @@ export default function Employees() {
                         <button
                           onClick={() => setConfirmToggle(emp)}
                           className="text-slate-400 hover:text-rose-500 transition-colors"
-                          aria-label={emp.active ? 'Desactivar' : 'Activar'}
+                          aria-label={emp.active ? t('Desactivar') : t('Activar')}
                         >
                           {emp.active
                             ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -408,7 +409,7 @@ export default function Employees() {
           <Modal
             key="confirm-toggle"
             onClose={() => setConfirmToggle(null)}
-            ariaLabel={confirmToggle.active ? 'Desactivar empleado' : 'Activar empleado'}
+            ariaLabel={confirmToggle.active ? t('Desactivar empleado') : t('Activar empleado')}
             className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6"
           >
               <div className={`w-11 h-11 rounded-full flex items-center justify-center mb-4 ${confirmToggle.active ? 'bg-rose-100' : 'bg-green-100'}`}>
@@ -424,12 +425,12 @@ export default function Employees() {
                 }
               </div>
               <h2 className="text-base font-semibold text-slate-800 mb-1">
-                {confirmToggle.active ? 'Desactivar empleado' : 'Activar empleado'}
+                {confirmToggle.active ? t('Desactivar empleado') : t('Activar empleado')}
               </h2>
               <p className="text-sm text-slate-500 mb-5">
                 {confirmToggle.active
-                  ? <>¿Seguro que deseas desactivar a <strong>{confirmToggle.name} {confirmToggle.last_name}</strong>? No podrá marcar asistencia hasta que lo vuelvas a activar.</>
-                  : <>¿Deseas volver a activar a <strong>{confirmToggle.name} {confirmToggle.last_name}</strong>? Podrá marcar asistencia nuevamente.</>
+                  ? <>{t('¿Seguro que deseas desactivar a')}{' '}<strong>{confirmToggle.name} {confirmToggle.last_name}</strong>{t('? No podrá marcar asistencia hasta que lo vuelvas a activar.')}</>
+                  : <>{t('¿Deseas volver a activar a')}{' '}<strong>{confirmToggle.name} {confirmToggle.last_name}</strong>{t('? Podrá marcar asistencia nuevamente.')}</>
                 }
               </p>
               <div className="flex gap-3">
@@ -437,7 +438,7 @@ export default function Employees() {
                   onClick={() => setConfirmToggle(null)}
                   className="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-600 font-medium py-2 rounded-lg text-sm transition-colors"
                 >
-                  Cancelar
+                  {t('Cancelar')}
                 </button>
                 <button
                   onClick={handleConfirmToggle}
@@ -445,7 +446,7 @@ export default function Employees() {
                     confirmToggle.active ? 'bg-rose-600 hover:bg-rose-700' : 'bg-green-600 hover:bg-green-700'
                   }`}
                 >
-                  {confirmToggle.active ? 'Sí, desactivar' : 'Sí, activar'}
+                  {confirmToggle.active ? t('Sí, desactivar') : t('Sí, activar')}
                 </button>
               </div>
           </Modal>

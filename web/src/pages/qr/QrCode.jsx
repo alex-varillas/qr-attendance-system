@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useAuth } from '../../hooks/useAuth.jsx'
+import { t } from '../../i18n'
 
 export default function QrCode() {
   const { business } = useAuth()
@@ -78,13 +79,13 @@ export default function QrCode() {
       // Logo Asistia (ícono + wordmark)
       const iconSize = 32
       ctx.font = '800 28px system-ui, -apple-system, sans-serif'
-      const wordW  = ctx.measureText('Asistia').width
+      const wordW  = ctx.measureText(t('Asistia')).width
       const logoX  = W / 2 - (iconSize + 10 + wordW) / 2
       const logoY  = base + 104
       ctx.drawImage(logoImg, logoX, logoY - iconSize + 4, iconSize, iconSize)
       ctx.fillStyle  = '#2E7DE9'
       ctx.textAlign  = 'left'
-      ctx.fillText('Asistia', logoX + iconSize + 10, logoY)
+      ctx.fillText(t('Asistia'), logoX + iconSize + 10, logoY)
 
       const link = document.createElement('a')
       link.download = `qr-asistencia-${business.name.replace(/\s+/g, '-').toLowerCase()}.png`
@@ -95,9 +96,9 @@ export default function QrCode() {
 
   return (
     <div className="p-4 sm:p-6 max-w-2xl mx-auto">
-      <h1 className="text-lg font-semibold text-slate-900 mb-1">Código QR</h1>
+      <h1 className="text-lg font-semibold text-slate-900 mb-1">{t('Código QR')}</h1>
       <p className="text-sm text-slate-500 mb-6">
-        Comparte o imprime este código para que tus empleados registren su asistencia.
+        {t('Comparte o imprime este código para que tus empleados registren su asistencia.')}
       </p>
 
       <div className="bg-white rounded-xl border border-slate-200 p-8 flex flex-col items-center gap-6">
@@ -127,29 +128,29 @@ export default function QrCode() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          Descargar QR
+          {t('Descargar QR')}
         </button>
       </div>
 
       {/* Explicación */}
       <div className="mt-6 bg-blue-50 border border-blue-100 rounded-xl p-5 space-y-3">
-        <h2 className="text-sm font-semibold text-blue-900">¿Cómo funciona?</h2>
+        <h2 className="text-sm font-semibold text-blue-900">{t('¿Cómo funciona?')}</h2>
         <ol className="space-y-2 text-sm text-blue-800">
           <li className="flex gap-2">
             <span className="font-bold shrink-0">1.</span>
-            Imprime o muestra este QR en un lugar visible de tu local.
+            {t('Imprime o muestra este QR en un lugar visible de tu local.')}
           </li>
           <li className="flex gap-2">
             <span className="font-bold shrink-0">2.</span>
-            El empleado escanea el QR con la cámara de su celular, no necesita instalar ninguna app.
+            {t('El empleado escanea el QR con la cámara de su celular, no necesita instalar ninguna app.')}
           </li>
           <li className="flex gap-2">
             <span className="font-bold shrink-0">3.</span>
-            Busca su nombre, ingresa su PIN si aplica, y presiona <strong>Marcar asistencia</strong>.
+            {t('Busca su nombre, ingresa su PIN si aplica, y presiona')}{' '}<strong>{t('Marcar asistencia')}</strong>.
           </li>
           <li className="flex gap-2">
             <span className="font-bold shrink-0">4.</span>
-            El registro aparece en tu dashboard en tiempo real.
+            {t('El registro aparece en tu dashboard en tiempo real.')}
           </li>
         </ol>
       </div>

@@ -1,11 +1,8 @@
 import { useState } from 'react'
+import { monthName, weekdayShortList } from '../../utils/dates'
 import Modal from './Modal'
+import { t } from '../../i18n'
 
-const MONTH_NAMES = [
-  'Enero','Febrero','Marzo','Abril','Mayo','Junio',
-  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre',
-]
-const DAY_LABELS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
 
 /**
  * Mini calendario de feriados.
@@ -13,7 +10,7 @@ const DAY_LABELS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom']
  *  - nationalHolidays: [{id, date:'YYYY-MM-DD', name}]
  *  - companyHolidays:  [{id, date:'YYYY-MM-DD', name}]
  *  - restDays: int[]  (days_of_week del horario default, 0=Dom…6=Sáb)
- *  - canManage: boolean — habilita agregar/eliminar feriados extra (default true)
+ *  - canManage: boolean - habilita agregar/eliminar feriados extra (default true)
  *  - onAdd(date, name): callback al confirmar nuevo feriado extra
  *  - onDelete(id): callback al eliminar feriado extra
  *  - loading: boolean
@@ -33,7 +30,6 @@ export default function HolidayCalendar({
   const [addingDate, setAddingDate]   = useState(null)  // 'YYYY-MM-DD'
   const [addName,    setAddName]      = useState('')
   const [addError,   setAddError]     = useState(null)
-  const [tooltip,    setTooltip]      = useState(null)  // {date, name}
   const [deleteTarget, setDeleteTarget] = useState(null) // {id, name}
 
   // ── Lookup maps ────────────────────────────────────────────────────────────
@@ -74,10 +70,7 @@ export default function HolidayCalendar({
   function handleDayClick(d) {
     const ds   = dateStr(d)
     const type = getDayType(d)
-    if (type === 'national') {
-      setTooltip({ date: ds, name: nationalMap[ds] })
-      return
-    }
+    if (type === 'national') return
     if (type === 'company') {
       if (canManage) setDeleteTarget(companyMap[ds])
       return
@@ -88,11 +81,10 @@ export default function HolidayCalendar({
     setAddingDate(ds)
     setAddName('')
     setAddError(null)
-    setTooltip(null)
   }
 
   async function handleAddConfirm() {
-    if (!addName.trim()) { setAddError('Ingresa un nombre para el feriado.'); return }
+    if (!addName.trim()) { setAddError(t('Ingresa un nombre para el feriado.')); return }
     setAddError(null)
     await onAdd(addingDate, addName.trim())
     setAddingDate(null)
@@ -131,7 +123,7 @@ export default function HolidayCalendar({
           </svg>
         </button>
         <span className="text-sm font-semibold text-slate-800">
-          {MONTH_NAMES[month]} {year}
+          {monthName(month)} {year}
         </span>
         <button
           type="button"
@@ -146,7 +138,7 @@ export default function HolidayCalendar({
 
       {/* ── Cabecera días ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-7 mb-1">
-        {DAY_LABELS.map(l => (
+        {weekdayShortList().map(l => (
           <div key={l} className="text-center text-[10px] font-semibold text-slate-400 py-1">
             {l}
           </div>
@@ -180,7 +172,7 @@ export default function HolidayCalendar({
               title={
                 type === 'national' ? nationalMap[ds]
                 : type === 'company' ? companyMap[ds]?.name
-                : type === 'normal' ? 'Clic para agregar un feriado'
+                : type === 'normal' ? t('Clic para agregar un feriado')
                 : undefined
               }
             >
@@ -200,11 +192,11 @@ export default function HolidayCalendar({
       <div className="flex flex-wrap gap-3 mt-3 pt-3 border-t border-slate-100">
         <span className="flex items-center gap-1.5 text-xs text-slate-500">
           <span className="w-3 h-3 rounded-full bg-blue-400 shrink-0" />
-          Feriado
+          {t('Feriado')}
         </span>
         <span className="flex items-center gap-1.5 text-xs text-slate-500">
           <span className="w-3 h-3 rounded-full bg-slate-300 shrink-0" />
-          Descanso semanal
+          {t('Descanso semanal')}
         </span>
       </div>
 
@@ -241,13 +233,13 @@ export default function HolidayCalendar({
       )}
 
       {allMonthHolidays.length === 0 && (
-        <p className="text-xs text-slate-400 mt-3 text-center">Sin feriados este mes</p>
+        <p className="text-xs text-slate-400 mt-3 text-center">{t('Sin feriados este mes')}</p>
       )}
 
       {/* ── Modal: agregar feriado extra ───────────────────────────────── */}
       {addingDate && (
-        <Modal onClose={() => setAddingDate(null)} ariaLabel="Agregar feriado" className="bg-white rounded-xl shadow-lg w-full max-w-xs p-5">
-            <h3 className="text-sm font-semibold text-slate-800 mb-1">Agregar feriado</h3>
+        <Modal onClose={() => setAddingDate(null)} ariaLabel={t('Agregar feriado')} className="bg-white rounded-xl shadow-lg w-full max-w-xs p-5">
+            <h3 className="text-sm font-semibold text-slate-800 mb-1">{t('Agregar feriado')}</h3>
             <p className="text-xs text-slate-500 mb-3">
               {addingDate.split('-').reverse().join('/')}
             </p>
@@ -256,7 +248,7 @@ export default function HolidayCalendar({
               value={addName}
               onChange={e => setAddName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAddConfirm()}
-              placeholder="Ej: Aniversario, Día del patrono..."
+              placeholder={t('Ej: Aniversario, Día del patrono...')}
               autoFocus
               className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
             />
@@ -267,7 +259,7 @@ export default function HolidayCalendar({
                 onClick={() => setAddingDate(null)}
                 className="flex-1 border border-slate-300 text-slate-600 text-sm font-medium py-2 rounded-lg hover:bg-slate-50 transition-colors"
               >
-                Cancelar
+                {t('Cancelar')}
               </button>
               <button
                 type="button"
@@ -275,7 +267,7 @@ export default function HolidayCalendar({
                 disabled={loading}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium py-2 rounded-lg transition-colors"
               >
-                Guardar
+                {t('Guardar')}
               </button>
             </div>
         </Modal>
@@ -283,11 +275,11 @@ export default function HolidayCalendar({
 
       {/* ── Modal: confirmar eliminación ────────────────────────────────── */}
       {deleteTarget && (
-        <Modal onClose={() => setDeleteTarget(null)} ariaLabel="¿Eliminar feriado?" className="bg-white rounded-xl shadow-lg w-full max-w-xs p-5">
-            <h3 className="text-sm font-semibold text-slate-800 mb-1">¿Eliminar feriado?</h3>
+        <Modal onClose={() => setDeleteTarget(null)} ariaLabel={t('¿Eliminar feriado?')} className="bg-white rounded-xl shadow-lg w-full max-w-xs p-5">
+            <h3 className="text-sm font-semibold text-slate-800 mb-1">{t('¿Eliminar feriado?')}</h3>
             <p className="text-xs text-slate-500 mb-4">
-              Se eliminará <span className="font-semibold text-slate-700">"{deleteTarget.name}"</span>{' '}
-              ({deleteTarget.date.split('-').reverse().join('/')}) de los feriados de tu empresa.
+              {t('Se eliminará')}{' '}<span className="font-semibold text-slate-700">"{deleteTarget.name}"</span>{' '}
+              ({deleteTarget.date.split('-').reverse().join('/')}{t(') de los feriados de tu empresa.')}
             </p>
             <div className="flex gap-2">
               <button
@@ -295,7 +287,7 @@ export default function HolidayCalendar({
                 onClick={() => setDeleteTarget(null)}
                 className="flex-1 border border-slate-300 text-slate-600 text-sm font-medium py-2 rounded-lg hover:bg-slate-50 transition-colors"
               >
-                Cancelar
+                {t('Cancelar')}
               </button>
               <button
                 type="button"
@@ -303,7 +295,7 @@ export default function HolidayCalendar({
                 disabled={loading}
                 className="flex-1 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white text-sm font-medium py-2 rounded-lg transition-colors"
               >
-                Eliminar
+                {t('Eliminar')}
               </button>
             </div>
         </Modal>

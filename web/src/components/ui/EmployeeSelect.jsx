@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
+import { t } from '../../i18n'
 
 /**
  * Dropdown buscable de empleados. Props: employees, value (id), onChange(id).
  */
-export default function EmployeeSelect({ employees = [], value, onChange, placeholder = 'Selecciona un empleado' }) {
+export default function EmployeeSelect({ employees = [], value, onChange, placeholder = t('Selecciona un empleado') }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const ref = useRef(null)
@@ -55,13 +56,13 @@ export default function EmployeeSelect({ employees = [], value, onChange, placeh
               autoFocus
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Buscar..."
+              placeholder={t('Buscar...')}
               className="w-full px-3 py-1.5 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <ul role="listbox" className="max-h-64 overflow-y-auto py-1">
             {filtered.length === 0 && (
-              <li className="px-3 py-2 text-sm text-slate-400">Sin resultados</li>
+              <li className="px-3 py-2 text-sm text-slate-400">{t('Sin resultados')}</li>
             )}
             {filtered.map(e => (
               <li key={e.id}>

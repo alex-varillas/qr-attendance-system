@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { backdropVariants, modalVariants } from '../../utils/animations'
 
-// Modal accesible genérico — antes cada uno de los ~14 modales de la app
+// Modal accesible genérico - antes cada uno de los ~14 modales de la app
 // tenía su propio par de <motion.div> backdrop+panel copiado a mano, sin
 // role="dialog", sin cierre con Esc y sin focus trap. Este componente solo
 // reemplaza ese wrapper (backdrop + panel + accesibilidad); el contenido de
@@ -23,7 +23,7 @@ export default function Modal({
   const panelRef = useRef(null)
 
   // Foco inicial al panel (no a un campo específico: el contenido varía
-  // demasiado entre modales para adivinar cuál sería el correcto) — salvo
+  // demasiado entre modales para adivinar cuál sería el correcto) - salvo
   // que algún hijo ya se haya autoenfocado (varios modales usan autoFocus en
   // su primer input), en cuyo caso se respeta eso. Restaura el foco a quien
   // lo tenía antes de abrir, al cerrar.

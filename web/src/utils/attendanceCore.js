@@ -1,8 +1,7 @@
 // Helpers de datos de asistencia sin dependencias pesadas (nada de jsPDF/xlsx
-// aquí) — para que quien solo necesita dateRange/buildMaps (LeaveCalendar,
-// vacations.js, employeeStats.js, attendanceReport.js, reports/argentina.js)
-// no arrastre esas librerías al bundle. Antes vivían en sunafil.js, que sí
-// importa jsPDF a nivel de módulo.
+// aquí) - para que quien solo necesita dateRange/buildMaps (LeaveCalendar,
+// vacations.js, employeeStats.js, attendanceReport.js) no arrastre esas
+// librerías al bundle.
 
 import {
   calcularTardanza,
@@ -10,6 +9,7 @@ import {
   calcularSalidaAnticipada,
 } from './attendance'
 import { ABSENCE_TYPE_LABELS } from './labels'
+import { t } from '../i18n/index.js'
 
 export const DEFAULT_DAYS = [1, 2, 3, 4, 5]
 
@@ -24,7 +24,7 @@ export function dateRange(from, to) {
   return dates
 }
 
-// Exportada: sunafil.js también la usa directo para cabeceras de CSV/Excel,
+// Exportada: attendanceReport.js también la usa directo para cabeceras de CSV/Excel,
 // fuera de buildRowData.
 export function formatFecha(dateStr) {
   const [y, m, d] = dateStr.split('-')
@@ -33,7 +33,7 @@ export function formatFecha(dateStr) {
 
 function calcHorasTrabajadasMin(checkin, checkout, breakStart, breakEnd) {
   if (!checkin || !checkout) return null
-  const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
+  const toMin = time => { const [h, m] = time.split(':').map(Number); return h * 60 + m }
   const bruto = toMin(checkout) - toMin(checkin)
   const ref   = (breakStart && breakEnd) ? toMin(breakEnd) - toMin(breakStart) : 0
   return Math.max(0, bruto - ref)
@@ -41,7 +41,7 @@ function calcHorasTrabajadasMin(checkin, checkout, breakStart, breakEnd) {
 
 function calcMinutosHorasExtra(checkin, checkout, breakStart, breakEnd, schedule) {
   if (!checkin || !checkout || !schedule?.start_time || !schedule?.end_time) return null
-  const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m }
+  const toMin = time => { const [h, m] = time.split(':').map(Number); return h * 60 + m }
   const bruto = toMin(checkout) - toMin(checkin)
   const refReal = (breakStart && breakEnd) ? toMin(breakEnd) - toMin(breakStart) : 0
   const trabajados = bruto - refReal
@@ -98,13 +98,13 @@ export function buildRowData(emp, date, marks, schedule, holidaySet, justMap, ov
     ? Math.max(0, heMin - heAutorizado)
     : null
   const compensacion = overtime?.compensation ?? ''
-  const consentimiento = overtime ? (overtime.consent ? 'Sí' : 'No') : ''
+  const consentimiento = overtime ? (overtime.consent ? t('Sí') : 'No') : ''
 
   let estado
-  if (isHoliday)           estado = 'Feriado trabajado'
-  else if (justType)       estado = ABSENCE_TYPE_LABELS[justType] ?? 'Permiso'
-  else if (checkin)        estado = 'Asistió'
-  else                     estado = 'Falta'
+  if (isHoliday)           estado = t('Feriado trabajado')
+  else if (justType)       estado = ABSENCE_TYPE_LABELS[justType] ?? t('Permiso')
+  else if (checkin)        estado = t('Asistió')
+  else                     estado = t('Falta')
 
   const sede  = locationId ? (locationMap[locationId] ?? '') : ''
   const horarioProg = schedule
@@ -116,7 +116,7 @@ export function buildRowData(emp, date, marks, schedule, holidaySet, justMap, ov
 
   return {
     apellidosNombres: `${emp.last_name}, ${emp.name}`,
-    docType:    emp.doc_type ?? 'DNI',
+    docType:    emp.doc_type ?? 'ID',
     dni:        emp.dni      ?? '',
     puesto:     emp.puesto   ?? '',
     fecha:      formatFecha(date),
@@ -137,7 +137,7 @@ export function buildRowData(emp, date, marks, schedule, holidaySet, justMap, ov
     compensacion,
     consentimiento,
     sede,
-    origen:      isManual ? 'Manual' : 'Autoservicio',
+    origen:      isManual ? t('Manual') : t('Autoservicio'),
     motivoManual: manualReason,
     justType:    justType ? (ABSENCE_TYPE_LABELS[justType] ?? justType) : '',
     justText,

@@ -7,6 +7,7 @@ import { useSchedules } from './useSchedules'
 import { useScheduleExceptions } from './useScheduleExceptions'
 import { getScheduleForDate, calcularTardanza } from '../utils/attendance'
 import { todayISO, extractTime } from '../utils/dates'
+import { t } from '../i18n'
 
 // Own threshold for the alert, separate from the tolerance of the business (which only defines when
 // something counts as "late" on the dashboard). Alerting from the first minute would be too noisy: this
@@ -37,7 +38,7 @@ export function useLateCheckinAlerts() {
       if (!schedule?.start_time) return
       const delay = calcularTardanza(extractTime(event.timestamp), schedule.start_time, 0)
       if (delay !== null && delay >= LATE_ALERT_THRESHOLD_MINUTES) {
-        showToast(`${employee.name} ${employee.last_name} llegó con ${delay} min de tardanza`)
+        showToast(t('{0} {1} llegó con {2} min de tardanza', [employee.name, employee.last_name, delay]))
       }
     })
   }, [queryClient, showToast])

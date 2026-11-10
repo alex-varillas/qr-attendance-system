@@ -4,6 +4,7 @@
 // cada uno le pasa su propio scope (employeeId o locationId, o ninguno).
 import { useState } from 'react'
 import { useScheduleExceptions, useSetException, useDeleteException } from '../../hooks/useScheduleExceptions'
+import { t } from '../../i18n'
 
 function fmtFecha(dateStr) {
   const [y, m, d] = dateStr.split('-')
@@ -32,9 +33,9 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
   }
 
   async function handleSave() {
-    if (!form.date) { setError('Selecciona una fecha.'); return }
+    if (!form.date) { setError(t('Selecciona una fecha.')); return }
     if (!form.noLaborable && form.start_time >= form.end_time) {
-      setError('La hora de salida debe ser posterior a la de entrada.')
+      setError(t('La hora de salida debe ser posterior a la de entrada.'))
       return
     }
     setSaving(true); setError('')
@@ -47,7 +48,7 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
       })
       setShowForm(false)
     } catch (err) {
-      setError(err.message ?? 'No se pudo guardar la excepción.')
+      setError(err.message ?? t('No se pudo guardar la excepción.'))
     } finally {
       setSaving(false)
     }
@@ -65,21 +66,21 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-slate-700">Horarios excepcionales</span>
+        <span className="text-sm font-medium text-slate-700">{t('Horarios excepcionales')}</span>
         {!showForm && (
           <button
             type="button"
             onClick={openForm}
             className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
           >
-            + Agregar excepción
+            {t('+ Agregar excepción')}
           </button>
         )}
       </div>
 
       {exceptions.length === 0 && !showForm && (
         <p className="text-xs text-slate-400">
-          Para un día puntual con horario distinto (evento, capacitación, jornada reducida), sin afectar el horario habitual.
+          {t('Para un día puntual con horario distinto (evento, capacitación, jornada reducida), sin afectar el horario habitual.')}
         </p>
       )}
 
@@ -90,7 +91,7 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
               <div className="min-w-0 text-xs">
                 <span className="font-medium text-slate-700">{fmtFecha(e.date)}</span>
                 <span className="text-slate-500 ml-2">
-                  {e.start_time ? `${e.start_time.slice(0, 5)} - ${e.end_time.slice(0, 5)}` : 'No laborable'}
+                  {e.start_time ? `${e.start_time.slice(0, 5)} - ${e.end_time.slice(0, 5)}` : t('No laborable')}
                 </span>
                 {e.reason && <span className="text-slate-400 ml-2 truncate">· {e.reason}</span>}
               </div>
@@ -99,7 +100,7 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
                 onClick={() => handleDelete(e.id)}
                 disabled={deletingId === e.id}
                 className="text-slate-300 hover:text-rose-500 disabled:opacity-50 transition-colors shrink-0"
-                aria-label="Eliminar excepción"
+                aria-label={t('Eliminar excepción')}
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -114,7 +115,7 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
       {showForm && (
         <div className="bg-slate-50 rounded-lg p-3 space-y-3">
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">Fecha</label>
+            <label className="block text-xs font-medium text-slate-600 mb-1">{t('Fecha')}</label>
             <input
               type="date"
               value={form.date}
@@ -131,13 +132,13 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
               onChange={e => setForm(f => ({ ...f, noLaborable: e.target.checked }))}
               className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
-            No laborable ese día
+            {t('No laborable ese día')}
           </label>
 
           {!form.noLaborable && (
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs text-slate-500 mb-1">Entrada</label>
+                <label className="block text-xs text-slate-500 mb-1">{t('Entrada')}</label>
                 <input
                   type="time"
                   value={form.start_time}
@@ -146,7 +147,7 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
                 />
               </div>
               <div>
-                <label className="block text-xs text-slate-500 mb-1">Salida</label>
+                <label className="block text-xs text-slate-500 mb-1">{t('Salida')}</label>
                 <input
                   type="time"
                   value={form.end_time}
@@ -159,13 +160,13 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
 
           <div>
             <label className="block text-xs text-slate-500 mb-1">
-              Motivo <span className="text-slate-400 font-normal">(opcional)</span>
+              {t('Motivo')}{' '}<span className="text-slate-400 font-normal">{t('(opcional)')}</span>
             </label>
             <input
               type="text"
               value={form.reason}
               onChange={e => setForm(f => ({ ...f, reason: e.target.value }))}
-              placeholder="Ej: Partido de la selección"
+              placeholder={t('Ej: Partido de la selección')}
               className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -178,7 +179,7 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
               onClick={() => setShowForm(false)}
               className="flex-1 border border-slate-200 hover:bg-white text-slate-600 font-medium py-2 rounded-lg text-xs transition-colors"
             >
-              Cancelar
+              {t('Cancelar')}
             </button>
             <button
               type="button"
@@ -186,7 +187,7 @@ export default function ExceptionsSection({ employeeId = null, locationId = null
               disabled={saving}
               className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 rounded-lg text-xs transition-colors"
             >
-              {saving ? 'Guardando...' : 'Guardar'}
+              {saving ? t('Guardando...') : t('Guardar')}
             </button>
           </div>
         </div>

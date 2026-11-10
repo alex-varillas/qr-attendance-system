@@ -14,11 +14,12 @@ import EntitlementModal from '../../components/ui/EntitlementModal'
 import { todayISO, formatShortDate as fmtDate, firstDayOfMonth, getAppLocale } from '../../utils/dates'
 import { avatarGradient } from '../../utils/avatar'
 import { ABSENCE_TYPE_LABELS as ABSENCE_LABELS } from '../../utils/labels'
+import { t } from '../../i18n'
 
 const STATUS_CONFIG = {
-  approved: { label: 'Confirmada',    bg: 'bg-emerald-50', text: 'text-emerald-700' },
-  pending:  { label: 'Por confirmar', bg: 'bg-amber-50',   text: 'text-amber-700'   },
-  rejected: { label: 'Cancelada',     bg: 'bg-slate-100',  text: 'text-slate-500'   },
+  approved: { get label() { return t('Confirmada') },    bg: 'bg-emerald-50', text: 'text-emerald-700' },
+  pending:  { get label() { return t('Por confirmar') }, bg: 'bg-amber-50',   text: 'text-amber-700'   },
+  rejected: { get label() { return t('Cancelada') },     bg: 'bg-slate-100',  text: 'text-slate-500'   },
 }
 
 function initials(name, last) {
@@ -43,7 +44,7 @@ export default function Leave() {
     () => employees.filter(e => e.active && e.role !== 'owner'),
     [employees],
   )
-  const daysLabel = 'días'
+  const daysLabel = t('días')
 
   const balances = useMemo(
     () => computeBalances({ employees: activos, justifications, year }),
@@ -84,14 +85,14 @@ export default function Leave() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">Vacaciones</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Saldo, registro y calendario · {year}</p>
+          <h1 className="text-lg font-semibold text-slate-900">{t('Vacaciones')}</h1>
+          <p className="text-sm text-slate-500 mt-0.5">{t('Saldo, registro y calendario ·')}{' '}{year}</p>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <button
             onClick={() => setMonthDate(firstDayOfMonth(monthDate, -1))}
             className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50"
-            aria-label="Mes anterior"
+            aria-label={t('Mes anterior')}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -102,7 +103,7 @@ export default function Leave() {
             onClick={() => !isCurrentMonth && setMonthDate(firstDayOfMonth(monthDate, 1))}
             disabled={isCurrentMonth}
             className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
-            aria-label="Mes siguiente"
+            aria-label={t('Mes siguiente')}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -117,18 +118,18 @@ export default function Leave() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 mb-4">
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden flex flex-col">
           <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2 shrink-0">
-            <h2 className="text-sm font-semibold text-slate-800">Ausencias registradas {year}</h2>
+            <h2 className="text-sm font-semibold text-slate-800">{t('Ausencias registradas')}{' '}{year}</h2>
             {justifications.length > 0 && (
               <span className="text-xs text-slate-400">({justifications.length})</span>
             )}
             {pendingCount > 0 && (
               <span className="text-xs font-medium bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full ml-auto">
-                {pendingCount} por confirmar
+                {pendingCount}{' '}{t('por confirmar')}
               </span>
             )}
           </div>
           {justifications.length === 0 ? (
-            <p className="p-6 text-center text-sm text-slate-400">Aún no hay ausencias registradas este año.</p>
+            <p className="p-6 text-center text-sm text-slate-400">{t('Aún no hay ausencias registradas este año.')}</p>
           ) : (
             // En escritorio la tarjeta se estira hasta la altura del calendario: la lista
             // (basis-0) no aporta altura propia y hace scroll llenando todo el espacio.
@@ -178,14 +179,14 @@ export default function Leave() {
                               disabled={approve.isPending}
                               className="text-xs font-medium px-2.5 py-2.5 sm:py-1.5 rounded-lg bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white transition-colors"
                             >
-                              Confirmar
+                              {t('Confirmar')}
                             </button>
                             <button
                               onClick={() => approve.mutate({ id: j.id, status: 'rejected' })}
                               disabled={approve.isPending}
                               className="text-xs font-medium px-2.5 py-2.5 sm:py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition-colors"
                             >
-                              Cancelar
+                              {t('Cancelar')}
                             </button>
                           </>
                         )}
@@ -194,7 +195,7 @@ export default function Leave() {
                             onClick={() => setJustTarget({ employee: emp, justification: j })}
                             className="text-xs font-medium px-2.5 py-2.5 sm:py-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors"
                           >
-                            Editar
+                            {t('Editar')}
                           </button>
                         )}
                       </div>
@@ -214,7 +215,7 @@ export default function Leave() {
           no empujar el resto de la página con empresas de muchos empleados. */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
-          <h2 className="text-sm font-semibold text-slate-800">Saldo de vacaciones {year}</h2>
+          <h2 className="text-sm font-semibold text-slate-800">{t('Saldo de vacaciones')}{' '}{year}</h2>
           {balances.length > 0 && (
             <div className="relative">
               <svg className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -224,16 +225,16 @@ export default function Leave() {
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Buscar empleado..."
+                placeholder={t('Buscar empleado...')}
                 className="pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-56"
               />
             </div>
           )}
         </div>
         {balances.length === 0 ? (
-          <p className="p-6 text-center text-sm text-slate-400">No hay empleados activos.</p>
+          <p className="p-6 text-center text-sm text-slate-400">{t('No hay empleados activos.')}</p>
         ) : filteredBalances.length === 0 ? (
-          <p className="p-6 text-center text-sm text-slate-400">Ningún empleado coincide con "{search}".</p>
+          <p className="p-6 text-center text-sm text-slate-400">{t('Ningún empleado coincide con "')}{search}".</p>
         ) : (
           <ul className="divide-y divide-slate-100 overflow-y-auto" style={{ maxHeight: 640 }}>
             {filteredBalances.map(b => {
@@ -254,7 +255,7 @@ export default function Leave() {
                       </Link>
                     </p>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      {b.entitlement} {daysLabel} al año · {b.taken} tomados
+                      {b.entitlement} {daysLabel}{' '}{t('al año ·')}{' '}{b.taken}{' '}{t('tomados')}
                     </p>
                   </div>
                   {/* Columna derecha: disponibles + botones, apilados en móvil, fila en sm+ */}
@@ -263,7 +264,7 @@ export default function Leave() {
                       <span className={`text-xl sm:text-2xl font-bold leading-none ${b.available < 0 ? 'text-rose-600' : 'text-slate-800'}`}>
                         {b.available}
                       </span>
-                      <p className="text-xs text-slate-400 mt-0.5">disponibles</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{t('disponibles')}</p>
                     </div>
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       {isOwner && (
@@ -271,14 +272,14 @@ export default function Leave() {
                           onClick={() => setEntitleTarget(emp)}
                           className="text-xs font-medium px-2.5 py-2.5 sm:py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
                         >
-                          Ajustar
+                          {t('Ajustar')}
                         </button>
                       )}
                       <button
                         onClick={() => setJustTarget({ employee: emp, justification: null })}
                         className="text-xs font-medium px-2.5 py-2.5 sm:py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                       >
-                        Registrar
+                        {t('Registrar')}
                       </button>
                     </div>
                   </div>

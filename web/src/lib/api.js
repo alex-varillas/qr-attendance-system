@@ -1,9 +1,11 @@
+import { t } from '../i18n/index.js'
+import { serverMessage } from '../i18n/serverMessages'
 // Thin client for the server API. The app and the API share one address, so the browser sends the
 // session cookie by itself: no token is ever stored in JavaScript.
 
 export class ApiError extends Error {
   constructor(status, message, code, body) {
-    super(message)
+    super(serverMessage(message))
     this.name = 'ApiError'
     this.status = status
     this.code = code
@@ -42,7 +44,7 @@ async function request(method, path, { body, query, form, signal } = {}) {
     response = await fetch(`/api${path}${toQuery(query)}`, { method, headers, body: payload, credentials: 'same-origin', signal })
   } catch (error) {
     if (error?.name === 'AbortError') throw error
-    throw new ApiError(0, 'No se pudo conectar con el servidor', 'network')
+    throw new ApiError(0, t('No se pudo conectar con el servidor'), 'network')
   }
 
   const text = await response.text()

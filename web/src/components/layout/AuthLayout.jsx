@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion'
 import { BRAND_GRADIENT } from '../../utils/theme'
+import { t } from '../../i18n'
 
 const BENEFITS = [
   {
-    title: 'Check-in por QR, sin apps',
-    desc: 'Tus empleados escanean y listo. Nada que instalar.',
+    get title() { return t('Check-in por QR, sin apps') },
+    get desc() { return t('Tus empleados escanean y listo. Nada que instalar.') },
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round"
@@ -13,8 +14,8 @@ const BENEFITS = [
     ),
   },
   {
-    title: 'Reportes en Excel y PDF',
-    desc: 'Exporta la asistencia de cualquier periodo en un clic.',
+    get title() { return t('Reportes en Excel y PDF') },
+    get desc() { return t('Exporta la asistencia de cualquier periodo en un clic.') },
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round"
@@ -23,8 +24,8 @@ const BENEFITS = [
     ),
   },
   {
-    title: 'Todo en tiempo real',
-    desc: 'Mira quién llegó, quién tardó y quién falta, al instante.',
+    get title() { return t('Todo en tiempo real') },
+    get desc() { return t('Mira quién llegó, quién tardó y quién falta, al instante.') },
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -32,8 +33,8 @@ const BENEFITS = [
     ),
   },
   {
-    title: 'Tus datos, en tu servidor',
-    desc: 'Código abierto y autoalojado. La información es tuya.',
+    get title() { return t('Tus datos, en tu servidor') },
+    get desc() { return t('Código abierto y autoalojado. La información es tuya.') },
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round"
@@ -68,10 +69,10 @@ function BrandPanel() {
         className="text-3xl font-extrabold tracking-tight leading-tight mb-3"
         style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
       >
-        Control de asistencia,<br />sin complicaciones.
+        {t('Control de asistencia,')}<br />{t('sin complicaciones.')}
       </h2>
       <p className="text-blue-100 text-sm mb-10 leading-relaxed">
-        La forma más simple de registrar la asistencia de tu equipo, sin hojas de cálculo.
+        {t('La forma más simple de registrar la asistencia de tu equipo, sin hojas de cálculo.')}
       </p>
 
       <div className="space-y-6">
@@ -107,7 +108,7 @@ export default function AuthLayout({ children, panel }) {
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <img
               src="/asistia-isotipo.png"
-              alt="Asistia"
+              alt={t('Asistia')}
               className="w-9 h-9"
               style={{ boxShadow: '0 2px 8px rgba(46,125,233,0.25)' }}
             />
@@ -115,7 +116,7 @@ export default function AuthLayout({ children, panel }) {
               className="text-lg font-extrabold text-slate-900 tracking-tight"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
-              Asistia
+              {t('Asistia')}
             </span>
           </div>
 

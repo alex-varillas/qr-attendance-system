@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { api } from '../../lib/api'
 import { generateAttendanceXLSX, generateAttendancePDF } from '../../utils/attendanceReport'
-import { todayISO } from '../../utils/dates'
+import { todayISO, monthName, weekdayInitials } from '../../utils/dates'
 import { downloadBlob } from '../../utils/download'
 import { useArchiveReport } from '../../hooks/useReports'
 import Modal from './Modal'
-import { CAL_MONTHS, CAL_DAYS, calMonthData, toISODate as toISO } from './Calendar'
+import { calMonthData, toISODate as toISO } from './Calendar'
+import { t } from '../../i18n'
 
 // Guardrail: without this a range of many years could be asked at once. 366 days covers the normal case
 // (up to a calendar year). The server enforces a limit too.
@@ -23,12 +24,11 @@ function ultimoDiaMes(offset = 0) {
 }
 
 // ─── Helpers de calendario ────────────────────────────────────────────────────
-const MONTHS_SHORT = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
 
 function fmtLabel(dateStr) {
   if (!dateStr) return ''
   const [y, m, d] = dateStr.split('-')
-  return `${parseInt(d)} ${MONTHS_SHORT[parseInt(m) - 1]} ${y}`
+  return `${parseInt(d)} ${monthName(parseInt(m) - 1, true)} ${y}`
 }
 
 function Spinner() {
@@ -103,7 +103,7 @@ function RangeCalendar({ dateFrom, dateTo, onChange }) {
           </svg>
         </button>
         <span className="text-sm font-semibold text-slate-800 select-none">
-          {CAL_MONTHS[vm]} {vy}
+          {monthName(vm)} {vy}
         </span>
         <button onClick={nextMonth} disabled={!canNext}
           className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed">
@@ -115,7 +115,7 @@ function RangeCalendar({ dateFrom, dateTo, onChange }) {
 
       {/* Day headers */}
       <div className="grid grid-cols-7 mb-0.5">
-        {CAL_DAYS.map((d, i) => (
+        {weekdayInitials().map((d, i) => (
           <div key={i} className="h-8 flex items-center justify-center text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
             {d}
           </div>
@@ -174,8 +174,8 @@ function RangeCalendar({ dateFrom, dateTo, onChange }) {
       {/* Hint */}
       <p className="text-[11px] text-slate-400 text-center mt-2 select-none">
         {phase === 'to' && dateFrom
-          ? 'Selecciona la fecha de fin'
-          : 'Selecciona la fecha de inicio'}
+          ? t('Selecciona la fecha de fin')
+          : t('Selecciona la fecha de inicio')}
       </p>
     </div>
   )
@@ -205,10 +205,10 @@ export default function ExportModal({ onClose }) {
   }
 
   async function fetchData() {
-    if (!dateTo) { setError('Selecciona la fecha de fin para continuar.'); return null }
+    if (!dateTo) { setError(t('Selecciona la fecha de fin para continuar.')); return null }
     const rangeDays = (new Date(dateTo) - new Date(dateFrom)) / (1000 * 60 * 60 * 24)
     if (rangeDays > MAX_REPORT_RANGE_DAYS) {
-      setError(`El rango máximo para un reporte es de ${MAX_REPORT_RANGE_DAYS} días (aprox. 1 año). Acorta las fechas o exporta por partes.`)
+      setError(t('El rango máximo para un reporte es de {0} días (aprox. 1 año). Acorta las fechas o exporta por partes.', [MAX_REPORT_RANGE_DAYS]))
       return null
     }
     setError(null)
@@ -216,11 +216,11 @@ export default function ExportModal({ onClose }) {
     try {
       data = await api.get('/reports/data', { from: dateFrom, to: dateTo })
     } catch {
-      setError('No se pudo generar el reporte. Intenta nuevamente.')
+      setError(t('No se pudo generar el reporte. Intenta nuevamente.'))
       return null
     }
-    if (!data.employees?.length) { setError('No hay empleados activos para exportar.'); return null }
-    if (!data.records?.length)   { setError('No hay marcaciones en el rango seleccionado.'); return null }
+    if (!data.employees?.length) { setError(t('No hay empleados activos para exportar.')); return null }
+    if (!data.records?.length)   { setError(t('No hay marcaciones en el rango seleccionado.')); return null }
     return data
   }
 
@@ -244,7 +244,7 @@ export default function ExportModal({ onClose }) {
         console.error('[ExportModal] could not keep a copy of the report:', err)
       }
     } catch {
-      setError('No se pudo generar el reporte. Intenta nuevamente.')
+      setError(t('No se pudo generar el reporte. Intenta nuevamente.'))
     } finally {
       setLoading(null)
     }
@@ -258,13 +258,13 @@ export default function ExportModal({ onClose }) {
   return (
     <Modal
       onClose={onClose}
-      ariaLabel="Exportar reporte"
+      ariaLabel={t('Exportar reporte')}
       className="bg-white rounded-xl shadow-lg w-full max-w-sm p-5"
     >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-slate-800">Exportar reporte</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors" aria-label="Cerrar">
+          <h2 className="text-base font-semibold text-slate-800">{t('Exportar reporte')}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors" aria-label={t('Cerrar')}>
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -278,21 +278,21 @@ export default function ExportModal({ onClose }) {
             onClick={() => applyPreset(primerDiaMes(), today)}
             className="flex-1 text-xs font-medium px-2 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors"
           >
-            Mes actual
+            {t('Mes actual')}
           </button>
           <button
             type="button"
             onClick={() => applyPreset(primerDiaMes(-1), ultimoDiaMes(-1))}
             className="flex-1 text-xs font-medium px-2 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors"
           >
-            Mes anterior
+            {t('Mes anterior')}
           </button>
           <button
             type="button"
             onClick={() => applyPreset(`${new Date().getFullYear()}-01-01`, today)}
             className="flex-1 text-xs font-medium px-2 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors"
           >
-            Año actual
+            {t('Año actual')}
           </button>
         </div>
 
@@ -304,7 +304,7 @@ export default function ExportModal({ onClose }) {
           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
             dateFrom ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-slate-50 text-slate-400 border border-slate-200'
           }`}>
-            {dateFrom ? fmtLabel(dateFrom) : 'Desde'}
+            {dateFrom ? fmtLabel(dateFrom) : t('Desde')}
           </div>
           <svg className="w-3 h-3 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -312,7 +312,7 @@ export default function ExportModal({ onClose }) {
           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
             dateTo ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-slate-50 text-slate-400 border border-slate-200 border-dashed'
           }`}>
-            {dateTo ? fmtLabel(dateTo) : 'Hasta'}
+            {dateTo ? fmtLabel(dateTo) : t('Hasta')}
           </div>
         </div>
 
@@ -330,7 +330,7 @@ export default function ExportModal({ onClose }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              Descargar Excel
+              {t('Descargar Excel')}
             </>
           )}
         </button>
@@ -347,7 +347,7 @@ export default function ExportModal({ onClose }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              Descargar PDF
+              {t('Descargar PDF')}
             </>
           )}
         </button>
@@ -357,7 +357,7 @@ export default function ExportModal({ onClose }) {
           onClick={onClose}
           className="w-full border border-slate-200 hover:bg-slate-50 text-slate-500 font-medium py-2 rounded-lg text-sm transition-colors"
         >
-          Cancelar
+          {t('Cancelar')}
         </button>
     </Modal>
   )

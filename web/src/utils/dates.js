@@ -7,12 +7,13 @@
  * behind UTC.
  */
 
+import { getLocale, setLocale } from '../i18n/index.js'
+
 let TIMEZONE = 'UTC'
-let LOCALE = 'es'
 
 // "es" and "en" both write the day first and use a 24-hour clock here.
 const LOCALE_TAGS = { es: 'es', en: 'en-GB' }
-const tag = () => LOCALE_TAGS[LOCALE] ?? LOCALE
+const tag = () => LOCALE_TAGS[getLocale()] ?? getLocale()
 
 /** Sets the time zone used across the app (idempotent, ignores empty values). */
 export function setAppTimezone(timezone) {
@@ -25,11 +26,11 @@ export function getAppTimezone() {
 
 /** Sets the language used for dates (idempotent, ignores empty values). */
 export function setAppLocale(locale) {
-  if (locale) LOCALE = locale
+  if (locale) setLocale(locale)
 }
 
 export function getAppLocale() {
-  return LOCALE
+  return getLocale()
 }
 
 /** Every IANA time zone the browser knows, with UTC first. */
@@ -172,4 +173,29 @@ export function dayRangeISO(date) {
   const start = new Date(Date.UTC(year, month - 1, day, 0, 0, 0) - offset * 60000)
   const end = new Date(start.getTime() + 24 * 60 * 60 * 1000 - 1000)
   return { start: start.toISOString(), end: end.toISOString() }
+}
+
+const capitalize = (text) => text.charAt(0).toUpperCase() + text.slice(1)
+
+/** Name of a month (0 = January), long ("March") or short ("Mar"), in the app language. */
+export function monthName(index, short = false) {
+  const name = new Date(2024, index, 1, 12).toLocaleDateString(tag(), { month: short ? 'short' : 'long' })
+  return capitalize(name.replace('.', ''))
+}
+
+/** Short name of a weekday (0 = Sunday), in the app language. */
+export function weekdayShort(index) {
+  // 7 January 2024 was a Sunday.
+  return capitalize(new Date(2024, 0, 7 + index, 12).toLocaleDateString(tag(), { weekday: 'short' }).replace('.', ''))
+}
+
+/** Short names of the weekdays, Monday first. */
+export function weekdayShortList() {
+  return [1, 2, 3, 4, 5, 6, 0].map(weekdayShort)
+}
+
+/** One-letter weekday headers, Monday first, for the small calendars. */
+export function weekdayInitials() {
+  return [1, 2, 3, 4, 5, 6, 0].map(index =>
+    new Date(2024, 0, 7 + index, 12).toLocaleDateString(tag(), { weekday: 'narrow' }).toUpperCase())
 }

@@ -6,6 +6,7 @@ import { useNow } from '../../hooks/useNow'
 import { todayISO, extractTime } from '../../utils/dates'
 import { calcularTardanza } from '../../utils/attendance'
 import { BRAND_GRADIENT } from '../../utils/theme'
+import { t, tn } from '../../i18n'
 
 const ROTATE_MS = 8000
 
@@ -24,8 +25,8 @@ export default function DashboardHero({
   const ownerFirstName = (userName ?? '').split(' ')[0]
 
   const checklist = [
-    { done: hasSchedule,       label: 'Horario base configurado' },
-    { done: employeeCount > 0, label: 'Al menos un empleado agregado' },
+    { done: hasSchedule,       label: t('Horario base configurado') },
+    { done: employeeCount > 0, label: t('Al menos un empleado agregado') },
   ]
   const checklistDone = checklist.every(c => c.done)
   const showInsights = checklistDone && isToday
@@ -82,8 +83,8 @@ export default function DashboardHero({
     const emp = (employees ?? []).find(e => e.id === latest.employee_id)
     if (!emp) return null
     const minutesAgo = Math.max(0, Math.round((now - new Date(latest.timestamp).getTime()) / 60000))
-    const TYPE_LABEL = { checkin: 'marcó su entrada', checkout: 'marcó su salida', break_start: 'inició su refrigerio', break_end: 'terminó su refrigerio' }
-    return { name: `${emp.name} ${emp.last_name ?? ''}`.trim(), action: TYPE_LABEL[latest.type] ?? 'marcó asistencia', minutesAgo }
+    const TYPE_LABEL = { checkin: t('marcó su entrada'), checkout: t('marcó su salida'), break_start: t('inició su refrigerio'), break_end: t('terminó su refrigerio') }
+    return { name: `${emp.name} ${emp.last_name ?? ''}`.trim(), action: TYPE_LABEL[latest.type] ?? t('marcó asistencia'), minutesAgo }
   }, [showInsights, records, employees, now])
 
   // ── Todas las que apliquen hoy, en el mismo orden de prioridad ─────────
@@ -93,25 +94,25 @@ export default function DashboardHero({
     if (birthdayEmployee) {
       cards.push({
         key: 'birthday',
-        eyebrow: 'Hoy',
-        title: `🎉 ${birthdayEmployee.name} ${birthdayEmployee.last_name ?? ''} cumple años hoy`,
-        desc: 'Un pequeño gesto con el equipo no está de más.',
+        eyebrow: t('Hoy'),
+        title: t('🎉 {0} {1} cumple años hoy', [birthdayEmployee.name, birthdayEmployee.last_name ?? '']),
+        desc: t('Un pequeño gesto con el equipo no está de más.'),
       })
     }
     if (comparison) {
       cards.push({
         key: 'comparison',
-        eyebrow: 'Hoy',
-        title: `${comparison.delta} tardanza${comparison.delta === 1 ? '' : 's'} menos que ayer 📉`,
-        desc: 'Tu equipo está mejorando la puntualidad.',
+        eyebrow: t('Hoy'),
+        title: tn(comparison.delta, '{0} tardanza menos que ayer 📉', '{0} tardanzas menos que ayer 📉'),
+        desc: t('Tu equipo está mejorando la puntualidad.'),
       })
     }
     if (lastActivity) {
       cards.push({
         key: 'activity',
-        eyebrow: 'En vivo',
+        eyebrow: t('En vivo'),
         title: `${lastActivity.name} ${lastActivity.action}`,
-        desc: lastActivity.minutesAgo === 0 ? 'Hace un momento.' : `Hace ${lastActivity.minutesAgo} minuto${lastActivity.minutesAgo === 1 ? '' : 's'}.`,
+        desc: lastActivity.minutesAgo === 0 ? t('Hace un momento.') : tn(lastActivity.minutesAgo, 'Hace {0} minuto.', 'Hace {0} minutos.'),
       })
     }
     // Respaldo: si ningún caso especial aplica hoy (nadie cumple años, no es
@@ -121,9 +122,9 @@ export default function DashboardHero({
       const days = Math.max(0, Math.floor((Date.now() - new Date(business.created_at).getTime()) / 86400000))
       cards.push({
         key: 'tenure',
-        eyebrow: 'Hoy',
-        title: days === 0 ? '¡Bienvenido a Asistia! 🎉' : `Llevas ${days} día${days === 1 ? '' : 's'} con Asistia`,
-        desc: 'En cuanto tu equipo empiece a marcar hoy, lo verás aquí en vivo.',
+        eyebrow: t('Hoy'),
+        title: days === 0 ? t('¡Bienvenido a Asistia! 🎉') : tn(days, 'Llevas {0} día con Asistia', 'Llevas {0} días con Asistia'),
+        desc: t('En cuanto tu equipo empiece a marcar hoy, lo verás aquí en vivo.'),
       })
     }
     return cards
@@ -166,15 +167,15 @@ export default function DashboardHero({
   return (
     <div className="mb-6">
       <h1 className="text-lg font-semibold text-slate-900">
-        {ownerFirstName ? `Hola, ${ownerFirstName} 👋` : 'Hola 👋'}
+        {ownerFirstName ? t('Hola, {0} 👋', [ownerFirstName]) : t('Hola 👋')}
       </h1>
-      <p className="text-sm text-slate-500 mt-0.5 mb-4">Bienvenido de nuevo</p>
+      <p className="text-sm text-slate-500 mt-0.5 mb-4">{t('Bienvenido de nuevo')}</p>
 
       {!checklistDone && (
         <Card
-          eyebrow="Primeros pasos"
-          title="Termina de configurar tu negocio"
-          desc="Te faltan un par de cosas para empezar a usar Asistia al 100%."
+          eyebrow={t('Primeros pasos')}
+          title={t('Termina de configurar tu negocio')}
+          desc={t('Te faltan un par de cosas para empezar a usar Asistia al 100%.')}
           cta={
             <>
               <ul className="relative space-y-1.5 my-4">
@@ -195,7 +196,7 @@ export default function DashboardHero({
                 onClick={() => navigate(!hasSchedule ? '/settings' : '/employees')}
                 className="relative bg-white text-blue-700 font-medium py-2 px-4 rounded-lg text-sm hover:bg-blue-50 transition-colors"
               >
-                Continuar configuración
+                {t('Continuar configuración')}
               </button>
             </>
           }

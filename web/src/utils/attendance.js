@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js'
 /**
  * Lógica de cálculo de asistencia de Asistia.
  * Toda la lógica de negocio definida en docs/referencia/LOGICA-ASISTENCIA.md vive aquí.
@@ -38,7 +39,6 @@ export function calcularTardanza(horaEntrada, horarioInicio, toleranciaMinutos =
 
 /**
  * Calcula minutos de exceso en el refrigerio.
- * Obligatorio en Perú para jornadas > 4h (Ley 27671).
  */
 export function calcularExcesoRefrigerio(breakStart, breakEnd, breakStartRef, breakEndRef) {
   if (!breakStart || !breakEnd || !breakStartRef || !breakEndRef) return null
@@ -210,7 +210,7 @@ export function calcDiferenciaHorario(totalMinutos, schedStart, schedEnd, breakS
  */
 export function formatMinutes(minutes) {
   if (minutes === null || minutes === undefined) return '-'
-  if (minutes === 0) return 'A tiempo'
+  if (minutes === 0) return t('A tiempo')
   const abs = Math.abs(minutes)
   const h = Math.floor(abs / 60)
   const m = abs % 60
@@ -224,13 +224,13 @@ export function formatMinutes(minutes) {
  * Labels de estado en español.
  */
 export const ESTADO_LABELS = {
-  asistio:           'Asistió',
-  falta:             'Falta',
-  ausente:           'Ausente',
-  no_iniciado:       'Aún no inicia',
-  pendiente:         'Pendiente',
-  permiso:           'Permiso',
-  descanso:          'Descanso',
-  feriado:           'Feriado',
-  feriado_trabajado: 'Feriado trabajado',
+  get asistio() { return t('Asistió') },
+  get falta() { return t('Falta') },
+  get ausente() { return t('Ausente') },
+  get no_iniciado() { return t('Aún no inicia') },
+  get pendiente() { return t('Pendiente') },
+  get permiso() { return t('Permiso') },
+  get descanso() { return t('Descanso') },
+  get feriado() { return t('Feriado') },
+  get feriado_trabajado() { return t('Feriado trabajado') },
 }

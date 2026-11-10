@@ -1,8 +1,10 @@
 import { createContext, useContext, useCallback, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { t } from '../../i18n'
 
 const ToastContext = createContext(null)
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useToast() {
   const ctx = useContext(ToastContext)
   if (!ctx) throw new Error('useToast debe usarse dentro de <ToastProvider>')
@@ -31,7 +33,7 @@ function playChime() {
       gain.connect(ctx.destination)
       osc.start(start)
       osc.stop(start + 0.24)
-      // Cerrar el AudioContext cuando termina la última nota — si no, cada
+      // Cerrar el AudioContext cuando termina la última nota - si no, cada
       // toast deja uno abierto (los navegadores limitan cuántos puede haber
       // vivos a la vez).
       if (i === notes.length - 1) osc.onended = () => ctx.close()
@@ -43,7 +45,7 @@ export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([])
 
   const dismissToast = useCallback((id) => {
-    setToasts(list => list.filter(t => t.id !== id))
+    setToasts(list => list.filter(toast => toast.id !== id))
   }, [])
 
   const showToast = useCallback((message, { duration = 9000 } = {}) => {
@@ -63,9 +65,9 @@ export function ToastProvider({ children }) {
         className="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-full max-w-sm px-4 sm:px-0 pointer-events-none"
       >
         <AnimatePresence>
-          {toasts.map(t => (
+          {toasts.map(toast => (
             <motion.div
-              key={t.id}
+              key={toast.id}
               initial={{ opacity: 0, y: -12, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
@@ -77,11 +79,11 @@ export function ToastProvider({ children }) {
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-sm text-slate-700 leading-snug pt-1 flex-1">{t.message}</p>
+              <p className="text-sm text-slate-700 leading-snug pt-1 flex-1">{toast.message}</p>
               <button
-                onClick={() => dismissToast(t.id)}
+                onClick={() => dismissToast(toast.id)}
                 className="text-slate-300 hover:text-slate-500 transition-colors shrink-0"
-                aria-label="Cerrar"
+                aria-label={t('Cerrar')}
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

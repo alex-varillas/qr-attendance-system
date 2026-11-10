@@ -1,6 +1,7 @@
 import { STAT_CATEGORIES } from '../../utils/employeeStats'
+import { weekdayInitials } from '../../utils/dates'
+import { t } from '../../i18n'
 
-const WEEKDAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
 const LEYENDA = ['asistio', 'tardanza', 'falta', 'permiso', 'descanso', 'feriado']
 
 function pad(n) { return String(n).padStart(2, '0') }
@@ -26,10 +27,10 @@ export default function MonthHeatmap({ serie = [], monthDate }) {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
-      <h3 className="text-sm font-semibold text-slate-800 mb-3">Calendario del mes</h3>
+      <h3 className="text-sm font-semibold text-slate-800 mb-3">{t('Calendario del mes')}</h3>
 
       <div className="grid grid-cols-7 gap-1 mb-1">
-        {WEEKDAYS.map((w, i) => (
+        {weekdayInitials().map((w, i) => (
           <div key={i} className="text-center text-[10px] font-semibold text-slate-400">{w}</div>
         ))}
       </div>

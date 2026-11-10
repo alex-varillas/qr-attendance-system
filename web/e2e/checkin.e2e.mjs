@@ -19,7 +19,7 @@ async function pick(page, name) {
   await clickText(page, `Registrar asistencia de ${name}`, 'button')
 }
 
-export const scenarios = (stack) => [
+export const scenarios = () => [
   ['the owner sees the QR code of the business with its check-in address', async (page, st) => {
     await asOwner(page, st)
     await page.goto(`${st.baseUrl}/qr`)
@@ -121,7 +121,7 @@ export const scenarios = (stack) => [
     await page.goto(`${st.baseUrl}/locations`)
     await expectText(page, 'Nueva sede')
     await clickText(page, 'Nueva sede', 'button')
-    await fill(page, 'input[placeholder="Ej: Sede Miraflores"]', 'Downtown')
+    await fill(page, 'input[placeholder="Ej: Sede Central"]', 'Downtown')
     await clickText(page, 'Crear sede', 'button')
     await expectText(page, 'Downtown')
     const site = (await st.sql("SELECT id FROM locations WHERE name = 'Downtown'")).rows[0]

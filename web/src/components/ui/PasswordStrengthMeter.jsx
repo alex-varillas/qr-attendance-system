@@ -1,4 +1,5 @@
 import { scorePassword } from '../../utils/passwordStrength'
+import { t } from '../../i18n'
 
 export default function PasswordStrengthMeter({ password }) {
   if (!password) return null
@@ -7,11 +8,11 @@ export default function PasswordStrengthMeter({ password }) {
   const bars = [0, 1, 2, 3]
 
   const tip = !checks.length8
-    ? 'Usa al menos 8 caracteres.'
+    ? t('Usa al menos 8 caracteres.')
     : !(checks.lower && checks.upper)
-      ? 'Combina mayúsculas y minúsculas.'
+      ? t('Combina mayúsculas y minúsculas.')
       : !checks.digit
-        ? 'Agrega al menos un número.'
+        ? t('Agrega al menos un número.')
         : null
 
   return (

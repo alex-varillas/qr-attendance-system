@@ -1,4 +1,4 @@
-// Shared Framer Motion variants — use these consistently across the app
+// Shared Framer Motion variants - use these consistently across the app
 
 export const backdropVariants = {
   hidden:  { opacity: 0 },

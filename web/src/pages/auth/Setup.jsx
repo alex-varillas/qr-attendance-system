@@ -7,7 +7,8 @@ import PasswordStrengthMeter from '../../components/ui/PasswordStrengthMeter'
 import AuthLayout from '../../components/layout/AuthLayout'
 import { BRAND_GRADIENT } from '../../utils/theme'
 import { isPasswordStrongEnough } from '../../utils/passwordStrength'
-import { listTimeZones } from '../../utils/dates'
+import { listTimeZones, setAppLocale } from '../../utils/dates'
+import { t, useLocale } from '../../i18n'
 
 const INPUT = 'w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
 const PRIMARY = 'w-full text-white font-medium py-2 px-4 rounded-lg text-sm transition-all disabled:opacity-50 hover:brightness-95'
@@ -16,6 +17,7 @@ const PRIMARY = 'w-full text-white font-medium py-2 px-4 rounded-lg text-sm tran
 // then picks the usual working hours. After this there is no public registration.
 export default function Setup() {
   const { status, completeSetup } = useAuth()
+  useLocale() // the language can be chosen on this very screen
   const navigate = useNavigate()
   const [step, setStep] = useState('account') // 'account' | 'schedule'
 
@@ -44,9 +46,9 @@ export default function Setup() {
   async function handleAccount(e) {
     e.preventDefault()
     setError(null)
-    if (form.password !== form.confirm) { setError('Las contraseñas no coinciden.'); return }
+    if (form.password !== form.confirm) { setError(t('Las contraseñas no coinciden.')); return }
     if (!isPasswordStrongEnough(form.password)) {
-      setError('Tu contraseña es muy débil. Combina mayúsculas, minúsculas y números, con al menos 8 caracteres.')
+      setError(t('Tu contraseña es muy débil. Combina mayúsculas, minúsculas y números, con al menos 8 caracteres.'))
       return
     }
     setLoading(true)
@@ -65,10 +67,10 @@ export default function Setup() {
     } catch (err) {
       setError(
         err.code === 'already_setup'
-          ? 'Este sistema ya está configurado. Inicia sesión.'
+          ? t('Este sistema ya está configurado. Inicia sesión.')
           : err.code === 'validation'
-            ? 'Revisa los datos ingresados.'
-            : 'No se pudo completar la configuración. Inténtalo de nuevo.',
+            ? t('Revisa los datos ingresados.')
+            : t('No se pudo completar la configuración. Inténtalo de nuevo.'),
       )
     } finally {
       setLoading(false)
@@ -89,7 +91,7 @@ export default function Setup() {
       navigate('/dashboard')
     } catch {
       setLoading(false)
-      setError('No se pudo guardar el horario. Puedes configurarlo después en Configuración.')
+      setError(t('No se pudo guardar el horario. Puedes configurarlo después en Configuración.'))
     }
   }
 
@@ -97,108 +99,108 @@ export default function Setup() {
     <AuthLayout>
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 mb-1">
-          {step === 'account' ? 'Paso 1 de 2' : 'Paso 2 de 2'}
+          {step === 'account' ? t('Paso 1 de 2') : t('Paso 2 de 2')}
         </p>
         <h1
           className="text-2xl font-bold text-slate-900"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
-          {step === 'account' ? 'Configura tu negocio' : 'Tu horario de trabajo'}
+          {step === 'account' ? t('Configura tu negocio') : t('Tu horario de trabajo')}
         </h1>
         <p className="text-slate-500 text-sm mt-1">
           {step === 'account'
-            ? 'Crea la cuenta del dueño. Será quien administre todo.'
-            : 'Define el horario habitual de lunes a viernes. Podrás cambiarlo después.'}
+            ? t('Crea la cuenta del dueño. Será quien administre todo.')
+            : t('Define el horario habitual de lunes a viernes. Podrás cambiarlo después.')}
         </p>
       </div>
 
       {step === 'account' ? (
         <form onSubmit={handleAccount} className="space-y-4">
           <div>
-            <label htmlFor="business_name" className="block text-sm font-medium text-slate-700 mb-1">Nombre del negocio</label>
-            <input id="business_name" required maxLength={150} value={form.business_name} onChange={set('business_name')} className={INPUT} placeholder="Mi negocio" />
+            <label htmlFor="business_name" className="block text-sm font-medium text-slate-700 mb-1">{t('Nombre del negocio')}</label>
+            <input id="business_name" required maxLength={150} value={form.business_name} onChange={set('business_name')} className={INPUT} placeholder={t('Mi negocio')} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="timezone" className="block text-sm font-medium text-slate-700 mb-1">Zona horaria</label>
+              <label htmlFor="timezone" className="block text-sm font-medium text-slate-700 mb-1">{t('Zona horaria')}</label>
               <select id="timezone" value={form.timezone} onChange={set('timezone')} className={INPUT}>
                 {zones.map(zone => <option key={zone} value={zone}>{zone}</option>)}
               </select>
             </div>
             <div>
-              <label htmlFor="locale" className="block text-sm font-medium text-slate-700 mb-1">Idioma</label>
-              <select id="locale" value={form.locale} onChange={set('locale')} className={INPUT}>
-                <option value="es">Español</option>
-                <option value="en">English</option>
+              <label htmlFor="locale" className="block text-sm font-medium text-slate-700 mb-1">{t('Idioma')}</label>
+              <select id="locale" value={form.locale} onChange={e => { set('locale')(e); setAppLocale(e.target.value) }} className={INPUT}>
+                <option value="es">{t('Español')}</option>
+                <option value="en">{t('English')}</option>
               </select>
             </div>
           </div>
 
           <div>
             <label htmlFor="tax_id" className="block text-sm font-medium text-slate-700 mb-1">
-              Identificación fiscal <span className="text-slate-400 font-normal">(opcional)</span>
+              {t('Identificación fiscal')}{' '}<span className="text-slate-400 font-normal">{t('(opcional)')}</span>
             </label>
-            <input id="tax_id" maxLength={50} value={form.tax_id} onChange={set('tax_id')} className={INPUT} placeholder="RUC, NIT, RFC, EIN..." />
+            <input id="tax_id" maxLength={50} value={form.tax_id} onChange={set('tax_id')} className={INPUT} placeholder={t('RUC, NIT, RFC, EIN...')} />
           </div>
 
           <hr className="border-slate-200" />
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
+              <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">{t('Nombre')}</label>
               <input id="name" required maxLength={100} autoComplete="given-name" value={form.name} onChange={set('name')} className={INPUT} />
             </div>
             <div>
-              <label htmlFor="last_name" className="block text-sm font-medium text-slate-700 mb-1">Apellido</label>
+              <label htmlFor="last_name" className="block text-sm font-medium text-slate-700 mb-1">{t('Apellido')}</label>
               <input id="last_name" required maxLength={100} autoComplete="family-name" value={form.last_name} onChange={set('last_name')} className={INPUT} />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">Correo electrónico</label>
-            <input id="email" type="email" required autoComplete="username" value={form.email} onChange={set('email')} className={INPUT} placeholder="tu@correo.com" />
+            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">{t('Correo electrónico')}</label>
+            <input id="email" type="email" required autoComplete="username" value={form.email} onChange={set('email')} className={INPUT} placeholder={t('tu@correo.com')} />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-            <PasswordInput id="password" required autoComplete="new-password" value={form.password} onChange={set('password')} placeholder="Mínimo 8 caracteres" />
+            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">{t('Contraseña')}</label>
+            <PasswordInput id="password" required autoComplete="new-password" value={form.password} onChange={set('password')} placeholder={t('Mínimo 8 caracteres')} />
             <PasswordStrengthMeter password={form.password} />
           </div>
 
           <div>
-            <label htmlFor="confirm" className="block text-sm font-medium text-slate-700 mb-1">Confirmar contraseña</label>
-            <PasswordInput id="confirm" required autoComplete="new-password" value={form.confirm} onChange={set('confirm')} placeholder="Repite la contraseña" />
+            <label htmlFor="confirm" className="block text-sm font-medium text-slate-700 mb-1">{t('Confirmar contraseña')}</label>
+            <PasswordInput id="confirm" required autoComplete="new-password" value={form.confirm} onChange={set('confirm')} placeholder={t('Repite la contraseña')} />
           </div>
 
           {error && <p role="alert" className="text-rose-600 text-sm">{error}</p>}
 
           <button type="submit" disabled={loading} className={PRIMARY} style={{ background: BRAND_GRADIENT }}>
-            {loading ? 'Creando...' : 'Continuar'}
+            {loading ? t('Creando...') : t('Continuar')}
           </button>
         </form>
       ) : (
         <form onSubmit={handleSchedule} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="start_time" className="block text-sm font-medium text-slate-700 mb-1">Entrada</label>
+              <label htmlFor="start_time" className="block text-sm font-medium text-slate-700 mb-1">{t('Entrada')}</label>
               <input id="start_time" type="time" required value={schedule.start_time} onChange={e => setSchedule(s => ({ ...s, start_time: e.target.value }))} className={INPUT} />
             </div>
             <div>
-              <label htmlFor="end_time" className="block text-sm font-medium text-slate-700 mb-1">Salida</label>
+              <label htmlFor="end_time" className="block text-sm font-medium text-slate-700 mb-1">{t('Salida')}</label>
               <input id="end_time" type="time" required value={schedule.end_time} onChange={e => setSchedule(s => ({ ...s, end_time: e.target.value }))} className={INPUT} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label htmlFor="break_start" className="block text-sm font-medium text-slate-700 mb-1">
-                Inicio de refrigerio <span className="text-slate-400 font-normal">(opcional)</span>
+                {t('Inicio de refrigerio')}{' '}<span className="text-slate-400 font-normal">{t('(opcional)')}</span>
               </label>
               <input id="break_start" type="time" value={schedule.break_start} onChange={e => setSchedule(s => ({ ...s, break_start: e.target.value }))} className={INPUT} />
             </div>
             <div>
               <label htmlFor="break_end" className="block text-sm font-medium text-slate-700 mb-1">
-                Fin de refrigerio <span className="text-slate-400 font-normal">(opcional)</span>
+                {t('Fin de refrigerio')}{' '}<span className="text-slate-400 font-normal">{t('(opcional)')}</span>
               </label>
               <input id="break_end" type="time" value={schedule.break_end} onChange={e => setSchedule(s => ({ ...s, break_end: e.target.value }))} className={INPUT} />
             </div>
@@ -207,14 +209,14 @@ export default function Setup() {
           {error && <p role="alert" className="text-rose-600 text-sm">{error}</p>}
 
           <button type="submit" disabled={loading} className={PRIMARY} style={{ background: BRAND_GRADIENT }}>
-            {loading ? 'Guardando...' : 'Guardar y entrar'}
+            {loading ? t('Guardando...') : t('Guardar y entrar')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
             className="w-full text-sm text-slate-500 hover:text-slate-700 py-1"
           >
-            Configurarlo después
+            {t('Configurarlo después')}
           </button>
         </form>
       )}

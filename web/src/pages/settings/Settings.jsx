@@ -4,20 +4,22 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { api } from '../../lib/api'
 import { useSchedules, useSetSchedules } from '../../hooks/useSchedules'
-import ScheduleBlocksEditor, { EMPTY_BLOCK, schedulesToBlocks, blocksToPayload, validateBlocks } from '../../components/ui/ScheduleBlocksEditor'
+import ScheduleBlocksEditor from '../../components/ui/ScheduleBlocksEditor'
+import { EMPTY_BLOCK, schedulesToBlocks, blocksToPayload, validateBlocks } from '../../utils/scheduleBlocks'
 import ExceptionsSection from '../../components/ui/ExceptionsSection'
 import { listTimeZones } from '../../utils/dates'
 import { useHolidays, useAddHoliday, useDeleteHoliday } from '../../hooks/useHolidays'
 import HolidayCalendar from '../../components/ui/HolidayCalendar'
 import Modal from '../../components/ui/Modal'
 import GeoBlockedAttempts from '../../components/ui/GeoBlockedAttempts'
+import { t, useLocale } from '../../i18n'
 
 // Carga diferida, Leaflet es pesado y solo se necesita en esta sección
 const MapPicker = lazy(() => import('../../components/ui/MapPicker'))
 
 function GeoActivationModal({ onConfirm, onCancel }) {
   return (
-    <Modal onClose={onCancel} ariaLabel="Configura la ubicación de tu local" className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6">
+    <Modal onClose={onCancel} ariaLabel={t('Configura la ubicación de tu local')} className="bg-white rounded-xl shadow-lg w-full max-w-sm p-6">
         <div className="w-11 h-11 bg-blue-100 rounded-full flex items-center justify-center mb-4">
           <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -26,24 +28,23 @@ function GeoActivationModal({ onConfirm, onCancel }) {
           </svg>
         </div>
         <h2 className="text-base font-semibold text-slate-800 mb-2">
-          Configura la ubicación de tu local
+          {t('Configura la ubicación de tu local')}
         </h2>
         <p className="text-sm text-slate-500 mb-5">
-          Para verificar que tus empleados marcan desde el local, necesitas indicar la ubicación exacta en el mapa.
-          Puedes buscar la dirección o hacer clic directamente sobre el mapa.
+          {t('Para verificar que tus empleados marcan desde el local, necesitas indicar la ubicación exacta en el mapa. Puedes buscar la dirección o hacer clic directamente sobre el mapa.')}
         </p>
         <div className="flex gap-3">
           <button
             onClick={onCancel}
             className="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-600 font-medium py-2 rounded-lg text-sm transition-colors"
           >
-            Cancelar
+            {t('Cancelar')}
           </button>
           <button
             onClick={onConfirm}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition-colors"
           >
-            Configurar ahora
+            {t('Configurar ahora')}
           </button>
         </div>
     </Modal>
@@ -52,6 +53,7 @@ function GeoActivationModal({ onConfirm, onCancel }) {
 
 export default function Settings() {
   const { business, isOwner, hasPermission, refreshBusiness } = useAuth()
+  useLocale() // the language is changed on this screen and applies as soon as it is saved
   const isAdminView = !isOwner && hasPermission('manage_settings')
   const canSettings = isOwner || hasPermission('manage_settings')
   const canHolidays = isOwner || hasPermission('manage_holidays')
@@ -146,11 +148,11 @@ export default function Settings() {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!isAdminView && !form.name.trim()) {
-      setError('El nombre del negocio es obligatorio.')
+      setError(t('El nombre del negocio es obligatorio.'))
       return
     }
     if (!isAdminView && form.geo_enabled && (form.location_lat == null || form.location_lng == null)) {
-      setError('Debes marcar la ubicación de tu local en el mapa antes de activar la verificación de geo.')
+      setError(t('Debes marcar la ubicación de tu local en el mapa antes de activar la verificación de geo.'))
       return
     }
     // Validar bloques de horario (solo si el owner los edita)
@@ -169,7 +171,7 @@ export default function Settings() {
         await setSchedules.mutateAsync({ employeeId: null, blocks: blocksToPayload(scheduleBlocks) })
       } catch {
         setSaving(false)
-        setError('No se pudo guardar el horario. Revisa que los días no se repitan entre bloques.')
+        setError(t('No se pudo guardar el horario. Revisa que los días no se repitan entre bloques.'))
         return
       }
     }
@@ -195,7 +197,7 @@ export default function Settings() {
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch {
-      setError('No se pudo guardar. Intenta nuevamente.')
+      setError(t('No se pudo guardar. Intenta nuevamente.'))
     } finally {
       setSaving(false)
     }
@@ -209,9 +211,9 @@ export default function Settings() {
   // (permisos independientes, sin panel donde vivir).
   const feriadosContent = canHolidays && (
     <>
-      <h2 className="text-sm font-semibold text-slate-800 mb-1">Feriados</h2>
+      <h2 className="text-sm font-semibold text-slate-800 mb-1">{t('Feriados')}</h2>
       <p className="text-xs text-slate-500 mb-4">
-        Los días de feriado no cuentan como falta. Haz clic en un día laboral para agregar un feriado del negocio.
+        {t('Los días de feriado no cuentan como falta. Haz clic en un día laboral para agregar un feriado del negocio.')}
       </p>
       <HolidayCalendar
         companyHolidays={holidays ?? []}
@@ -226,7 +228,7 @@ export default function Settings() {
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
-      <h1 className="text-lg font-semibold text-slate-900 mb-6">Configuración</h1>
+      <h1 className="text-lg font-semibold text-slate-900 mb-6">{t('Configuración')}</h1>
 
       <AnimatePresence>
         {showGeoModal && (
@@ -243,11 +245,11 @@ export default function Settings() {
 
           {!isAdminView && (
             <section className="bg-white rounded-xl border border-slate-200 p-5">
-              <h2 className="text-sm font-semibold text-slate-800 mb-4">Datos del negocio</h2>
+              <h2 className="text-sm font-semibold text-slate-800 mb-4">{t('Datos del negocio')}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Nombre del negocio <span className="text-rose-500">*</span>
+                    {t('Nombre del negocio')}{' '}<span className="text-rose-500">*</span>
                   </label>
                   <input
                     id="settings-name"
@@ -260,7 +262,7 @@ export default function Settings() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Identificación fiscal <span className="text-slate-400 font-normal">(opcional)</span>
+                    {t('Identificación fiscal')}{' '}<span className="text-slate-400 font-normal">{t('(opcional)')}</span>
                   </label>
                   <input
                     id="settings-tax-id"
@@ -269,11 +271,11 @@ export default function Settings() {
                     onChange={e => set('tax_id', e.target.value.slice(0, 50))}
                     maxLength={50}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="RUC, NIT, RFC, EIN..."
+                    placeholder={t('RUC, NIT, RFC, EIN...')}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Zona horaria</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t('Zona horaria')}</label>
                   <select
                     id="settings-timezone"
                     value={form.timezone}
@@ -282,18 +284,18 @@ export default function Settings() {
                   >
                     {timeZones.map(zone => <option key={zone} value={zone}>{zone}</option>)}
                   </select>
-                  <p className="text-xs text-slate-400 mt-1">Todas las horas se muestran en esta zona.</p>
+                  <p className="text-xs text-slate-400 mt-1">{t('Todas las horas se muestran en esta zona.')}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Idioma</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t('Idioma')}</label>
                   <select
                     id="settings-locale"
                     value={form.locale}
                     onChange={e => set('locale', e.target.value)}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="es">Español</option>
-                    <option value="en">English</option>
+                    <option value="es">{t('Español')}</option>
+                    <option value="en">{t('English')}</option>
                   </select>
                 </div>
               </div>
@@ -302,9 +304,9 @@ export default function Settings() {
 
           <section className="bg-white rounded-xl border border-slate-200 p-5">
               <div>
-                <h2 className="text-sm font-semibold text-slate-800 mb-1">Tolerancia de tardanza</h2>
+                <h2 className="text-sm font-semibold text-slate-800 mb-1">{t('Tolerancia de tardanza')}</h2>
                 <p className="text-xs text-slate-500 mb-4">
-                  Minutos de gracia antes de marcar a un empleado como tarde.
+                  {t('Minutos de gracia antes de marcar a un empleado como tarde.')}
                 </p>
                 <div className="flex items-center gap-3">
                   <input
@@ -316,15 +318,14 @@ export default function Settings() {
                     onChange={e => set('tolerance_minutes', e.target.value)}
                     className="w-24 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <span className="text-sm text-slate-500">minutos</span>
+                  <span className="text-sm text-slate-500">{t('minutos')}</span>
                 </div>
               </div>
 
               <div className="mt-6 pt-6 border-t border-slate-200">
-                <h2 className="text-sm font-semibold text-slate-800 mb-1">Horario de empresa</h2>
+                <h2 className="text-sm font-semibold text-slate-800 mb-1">{t('Horario de empresa')}</h2>
                 <p className="text-xs text-slate-500 mb-4">
-                  Define uno o más bloques. Usa varios bloques si algunos días tienen horario distinto
-                  (p. ej. sábados) o jornada partida. Puedes asignar horarios propios por empleado en la sección Empleados.
+                  {t('Define uno o más bloques. Usa varios bloques si algunos días tienen horario distinto (p. ej. sábados) o jornada partida. Puedes asignar horarios propios por empleado en la sección Empleados.')}
                 </p>
                 <ScheduleBlocksEditor blocks={scheduleBlocks} onChange={setScheduleBlocks} />
               </div>
@@ -338,9 +339,9 @@ export default function Settings() {
             <section id="map-section" className="bg-white rounded-xl border border-slate-200 p-5">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex-1">
-                  <h2 className="text-sm font-semibold text-slate-800">Verificación de ubicación</h2>
+                  <h2 className="text-sm font-semibold text-slate-800">{t('Verificación de ubicación')}</h2>
                   <p className="text-xs text-slate-500 mt-1">
-                    Requiere que el empleado esté físicamente en tu local para registrar asistencia.
+                    {t('Requiere que el empleado esté físicamente en tu local para registrar asistencia.')}
                   </p>
                 </div>
                 <button
@@ -366,9 +367,9 @@ export default function Settings() {
                       d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                   </svg>
                   <div>
-                    <p className="text-xs font-medium text-amber-800">Recomendamos activar la verificación de ubicación</p>
+                    <p className="text-xs font-medium text-amber-800">{t('Recomendamos activar la verificación de ubicación')}</p>
                     <p className="text-xs text-amber-700 mt-0.5">
-                      Sin esto, los empleados pueden registrar asistencia desde cualquier lugar.
+                      {t('Sin esto, los empleados pueden registrar asistencia desde cualquier lugar.')}
                     </p>
                   </div>
                 </div>
@@ -381,7 +382,7 @@ export default function Settings() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Ubicación de tu local <span className="text-rose-500">*</span>
+                      {t('Ubicación de tu local')}{' '}<span className="text-rose-500">*</span>
                     </label>
                     <Suspense fallback={<div className="h-72 bg-slate-100 rounded-lg animate-pulse" />}>
                       <MapPicker
@@ -398,7 +399,7 @@ export default function Settings() {
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">
-                      Radio permitido
+                      {t('Radio permitido')}
                     </label>
                     <div className="flex items-center gap-3">
                       <input
@@ -409,9 +410,9 @@ export default function Settings() {
                         onChange={e => set('geo_radius_meters', e.target.value)}
                         className="w-24 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
-                      <span className="text-sm text-slate-500">metros desde el pin</span>
+                      <span className="text-sm text-slate-500">{t('metros desde el pin')}</span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">Recomendado: 100 metros.</p>
+                    <p className="text-xs text-slate-400 mt-1">{t('Recomendado: 100 metros.')}</p>
                   </div>
 
                   <GeoBlockedAttempts />
@@ -442,14 +443,14 @@ export default function Settings() {
                 disabled={saving}
                 className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 px-5 rounded-lg text-sm transition-colors"
               >
-                {saving ? 'Guardando...' : 'Guardar cambios'}
+                {saving ? t('Guardando...') : t('Guardar cambios')}
               </button>
               {saved && (
                 <span className="text-sm text-green-600 flex items-center gap-1.5">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  Cambios guardados
+                  {t('Cambios guardados')}
                 </span>
               )}
             </div>

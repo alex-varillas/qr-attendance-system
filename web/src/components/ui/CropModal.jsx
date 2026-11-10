@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import Cropper from 'react-easy-crop'
 import Modal from './Modal'
+import { t } from '../../i18n'
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -45,10 +46,10 @@ export default function CropModal({ imageSrc, onConfirm, onCancel }) {
     setCropError(null)
     try {
       const blob = await getCroppedImg(imageSrc, croppedArea)
-      if (!blob) throw new Error('No se pudo procesar la imagen. Intenta con otra foto.')
+      if (!blob) throw new Error(t('No se pudo procesar la imagen. Intenta con otra foto.'))
       onConfirm(blob)
     } catch (err) {
-      setCropError(err.message ?? 'Error al procesar la imagen.')
+      setCropError(err.message ?? t('Error al procesar la imagen.'))
       setSaving(false)
     }
   }
@@ -56,16 +57,16 @@ export default function CropModal({ imageSrc, onConfirm, onCancel }) {
   return (
     <Modal
       onClose={onCancel}
-      ariaLabel="Ajustar foto"
+      ariaLabel={t('Ajustar foto')}
       backdropClassName="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 px-4"
       className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden"
     >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-800">Ajustar foto</h2>
+          <h2 className="text-base font-semibold text-slate-800">{t('Ajustar foto')}</h2>
           <button
             onClick={onCancel}
-            aria-label="Cancelar"
+            aria-label={t('Cancelar')}
             className="text-slate-400 hover:text-slate-600 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -106,13 +107,13 @@ export default function CropModal({ imageSrc, onConfirm, onCancel }) {
             value={zoom}
             onChange={e => setZoom(Number(e.target.value))}
             className="flex-1 h-1.5 accent-blue-600 cursor-pointer"
-            aria-label="Zoom"
+            aria-label={t('Zoom')}
           />
           <svg className="w-5 h-5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
           </svg>
         </div>
-        <p className="text-center text-[11px] text-slate-400 -mt-1 pb-1">Arrastra para centrar · desliza para hacer zoom</p>
+        <p className="text-center text-[11px] text-slate-400 -mt-1 pb-1">{t('Arrastra para centrar · desliza para hacer zoom')}</p>
 
         {/* Error de recorte */}
         {cropError && (
@@ -125,14 +126,14 @@ export default function CropModal({ imageSrc, onConfirm, onCancel }) {
             onClick={onCancel}
             className="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-600 font-medium py-2 rounded-lg text-sm transition-colors"
           >
-            Cancelar
+            {t('Cancelar')}
           </button>
           <button
             onClick={handleConfirm}
             disabled={saving}
             className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 rounded-lg text-sm transition-colors"
           >
-            {saving ? 'Procesando...' : 'Guardar foto'}
+            {saving ? t('Procesando...') : t('Guardar foto')}
           </button>
         </div>
     </Modal>

@@ -1,10 +1,11 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth.jsx'
+import { t } from '../../i18n'
 
 function Spinner() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="text-slate-500 text-sm">Cargando...</div>
+      <div className="text-slate-500 text-sm">{t('Cargando...')}</div>
     </div>
   )
 }
@@ -14,14 +15,14 @@ function ConnectionError() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
       <div className="text-center max-w-sm">
-        <p className="text-slate-800 font-semibold">No se pudo conectar con el servidor</p>
-        <p className="text-slate-500 text-sm mt-1">Revisa que el servidor esté en marcha e inténtalo de nuevo.</p>
+        <p className="text-slate-800 font-semibold">{t('No se pudo conectar con el servidor')}</p>
+        <p className="text-slate-500 text-sm mt-1">{t('Revisa que el servidor esté en marcha e inténtalo de nuevo.')}</p>
         <button
           type="button"
           onClick={reload}
           className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
         >
-          Reintentar
+          {t('Reintentar')}
         </button>
       </div>
     </div>
@@ -58,7 +59,7 @@ function Restricted({ message }) {
   return (
     <div className="p-6 flex items-center justify-center h-64">
       <div className="text-center">
-        <p className="text-slate-700 font-medium text-sm">Acceso restringido</p>
+        <p className="text-slate-700 font-medium text-sm">{t('Acceso restringido')}</p>
         <p className="text-slate-400 text-xs mt-1">{message}</p>
       </div>
     </div>
@@ -68,7 +69,7 @@ function Restricted({ message }) {
 /** Requires the owner. Administrators see an access-denied message. */
 export function OwnerRoute({ children }) {
   const { isOwner } = useAuth()
-  if (!isOwner) return <Restricted message="Esta sección es solo para el dueño de la cuenta." />
+  if (!isOwner) return <Restricted message={t('Esta sección es solo para el dueño de la cuenta.')} />
   return children
 }
 
@@ -81,6 +82,6 @@ export function PermissionRoute({ permission, anyOf, children }) {
   const { isOwner, hasPermission } = useAuth()
   const needed = anyOf ?? (permission ? [permission] : [])
   const allowed = isOwner || needed.some(p => hasPermission(p))
-  if (!allowed) return <Restricted message="No tienes permisos para acceder a esta sección." />
+  if (!allowed) return <Restricted message={t('No tienes permisos para acceder a esta sección.')} />
   return children
 }

@@ -5,14 +5,10 @@ import { useReports, useDeleteReport } from '../../hooks/useReports'
 import { downloadReport } from '../../utils/reports'
 import ExportModal from '../../components/ui/ExportModal'
 import Modal from '../../components/ui/Modal'
-import { formatShortDate as fmtDate } from '../../utils/dates'
+import { formatShortDate as fmtDate, monthName } from '../../utils/dates'
+import { t, tn } from '../../i18n'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-const MONTH_NAMES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-]
 
 function fmtBytes(bytes) {
   if (!bytes) return '-'
@@ -25,9 +21,9 @@ function fmtRelative(dateStr) {
   const d = new Date(dateStr)
   const now = new Date()
   const diff = Math.floor((now - d) / 1000)
-  if (diff < 60)    return 'hace un momento'
-  if (diff < 3600)  return `hace ${Math.floor(diff / 60)} min`
-  if (diff < 86400) return `hace ${Math.floor(diff / 3600)} h`
+  if (diff < 60)    return t('hace un momento')
+  if (diff < 3600)  return t('hace {0} min', [Math.floor(diff / 60)])
+  if (diff < 86400) return t('hace {0} h', [Math.floor(diff / 3600)])
   return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
@@ -39,7 +35,7 @@ function monthKey(dateStr) {
 
 function monthLabel(key) {
   const [y, m] = key.split('-')
-  return `${MONTH_NAMES[parseInt(m, 10) - 1]} ${y}`
+  return `${monthName(parseInt(m, 10) - 1)} ${y}`
 }
 
 function groupByMonth(reports) {
@@ -58,13 +54,13 @@ function FormatBadge({ format }) {
   if (format === 'pdf') {
     return (
       <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-100">
-        PDF
+        {t('PDF')}
       </span>
     )
   }
   return (
     <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-      Excel
+      {t('Excel')}
     </span>
   )
 }
@@ -73,13 +69,13 @@ function OriginBadge({ source }) {
   if (source === 'auto') {
     return (
       <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-100">
-        Automático
+        {t('Automático')}
       </span>
     )
   }
   return (
     <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-      Manual
+      {t('Manual')}
     </span>
   )
 }
@@ -96,7 +92,7 @@ function ReportRow({ report, isOwner, onDelete }) {
     try {
       await downloadReport(report)
     } catch {
-      setDlError('No se pudo descargar. Intenta nuevamente.')
+      setDlError(t('No se pudo descargar. Intenta nuevamente.'))
     } finally {
       setDownloading(false)
     }
@@ -114,7 +110,7 @@ function ReportRow({ report, isOwner, onDelete }) {
           {fmtDate(report.date_from)} – {fmtDate(report.date_to)}
         </p>
         <p className="text-xs text-slate-400 mt-0.5">
-          {report.employee_count != null ? `${report.employee_count} empleado${report.employee_count === 1 ? '' : 's'}` : ''}
+          {report.employee_count != null ? tn(report.employee_count, '{0} empleado', '{0} empleados') : ''}
           {report.employee_count != null && report.size_bytes ? ' · ' : ''}
           {fmtBytes(report.size_bytes)}
           {report.created_by_email ? ` · ${report.created_by_email}` : ''}
@@ -143,13 +139,13 @@ function ReportRow({ report, isOwner, onDelete }) {
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
           )}
-          Descargar
+          {t('Descargar')}
         </button>
         {isOwner && (
           <button
             onClick={() => onDelete(report)}
             className="flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 transition-colors"
-            title="Eliminar reporte"
+            title={t('Eliminar reporte')}
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -166,16 +162,16 @@ function ReportRow({ report, isOwner, onDelete }) {
 
 function DeleteConfirm({ report, onConfirm, onCancel, isDeleting }) {
   return (
-    <Modal onClose={onCancel} ariaLabel="Eliminar reporte" className="bg-white rounded-xl shadow-lg w-full max-w-xs p-5 text-center">
+    <Modal onClose={onCancel} ariaLabel={t('Eliminar reporte')} className="bg-white rounded-xl shadow-lg w-full max-w-xs p-5 text-center">
         <div className="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-3">
           <svg className="w-5 h-5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
         </div>
-        <h3 className="text-sm font-semibold text-slate-800 mb-1">Eliminar reporte</h3>
+        <h3 className="text-sm font-semibold text-slate-800 mb-1">{t('Eliminar reporte')}</h3>
         <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-          Se eliminará el archivo <span className="font-medium text-slate-700">{report.file_name}</span> del historial y del almacenamiento. Esta acción no se puede deshacer.
+          {t('Se eliminará el archivo')}{' '}<span className="font-medium text-slate-700">{report.file_name}</span>{' '}{t('del historial y del almacenamiento. Esta acción no se puede deshacer.')}
         </p>
         <div className="flex gap-2">
           <button
@@ -183,14 +179,14 @@ function DeleteConfirm({ report, onConfirm, onCancel, isDeleting }) {
             disabled={isDeleting}
             className="flex-1 border border-slate-200 text-slate-600 text-sm font-medium py-2 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
           >
-            Cancelar
+            {t('Cancelar')}
           </button>
           <button
             onClick={onConfirm}
             disabled={isDeleting}
             className="flex-1 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium py-2 rounded-lg transition-colors disabled:opacity-50"
           >
-            {isDeleting ? 'Eliminando…' : 'Eliminar'}
+            {isDeleting ? t('Eliminando…') : t('Eliminar')}
           </button>
         </div>
     </Modal>
@@ -234,9 +230,9 @@ function EmptyState() {
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
       </div>
-      <h3 className="text-sm font-semibold text-slate-700 mb-1">Sin reportes aún</h3>
+      <h3 className="text-sm font-semibold text-slate-700 mb-1">{t('Sin reportes aún')}</h3>
       <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
-        Los reportes de asistencia (Excel y PDF) que generes aparecerán aquí automáticamente.
+        {t('Los reportes de asistencia (Excel y PDF) que generes aparecerán aquí automáticamente.')}
       </p>
     </div>
   )
@@ -263,19 +259,19 @@ export default function Reports() {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">Reportes</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Historial de reportes de asistencia generados.</p>
+          <h1 className="text-lg font-semibold text-slate-900">{t('Reportes')}</h1>
+          <p className="text-sm text-slate-500 mt-0.5">{t('Historial de reportes de asistencia generados.')}</p>
         </div>
         <button
           onClick={() => setExportOpen(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 shrink-0"
-          title="Generar reporte"
+          title={t('Generar reporte')}
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
-          <span className="hidden sm:inline">Generar reporte</span>
+          <span className="hidden sm:inline">{t('Generar reporte')}</span>
         </button>
       </div>
 
@@ -292,7 +288,7 @@ export default function Reports() {
                 <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
                   {monthLabel(key)}
                   <span className="ml-2 font-normal normal-case text-slate-400">
-                    {items.length} reporte{items.length !== 1 ? 's' : ''}
+                    {tn(items.length, '{0} reporte', '{0} reportes')}
                   </span>
                 </h2>
               </div>

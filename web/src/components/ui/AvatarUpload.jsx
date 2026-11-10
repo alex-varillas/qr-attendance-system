@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useUploadEmployeePhoto, useDeleteEmployeePhoto } from '../../hooks/useEmployeePhoto'
 import CropModal from './CropModal'
 import { avatarGradient } from '../../utils/avatar'
+import { t } from '../../i18n'
 
 const SIZES = {
   sm: { outer: 'w-9 h-9',   text: 'text-sm',  cam: 'w-3.5 h-3.5' },
@@ -19,7 +20,7 @@ export default function AvatarUpload({ employee, size = 'lg', editable = false }
   const fileRef  = useRef(null)
   const [menuOpen,      setMenuOpen]      = useState(false)
   const [cropSrc,       setCropSrc]       = useState(null)
-  // Estado local de la URL — se actualiza al instante tras upload/delete
+  // Estado local de la URL - se actualiza al instante tras upload/delete
   const [localPhotoUrl, setLocalPhotoUrl] = useState(employee.photo_url ?? null)
 
   // Sincronizar si el prop externo cambia (p.ej. recarga de datos)
@@ -61,7 +62,7 @@ export default function AvatarUpload({ employee, size = 'lg', editable = false }
     upload.mutate(
       { employeeId: employee.id, file: blob, ext: 'jpg' },
       {
-        // El hook ya devuelve la URL con ?t= de cache-buster — no añadir otro
+        // El hook ya devuelve la URL con ?t= de cache-buster - no añadir otro
         onSuccess: (urlWithBust) => setLocalPhotoUrl(urlWithBust),
       },
     )
@@ -136,13 +137,13 @@ export default function AvatarUpload({ employee, size = 'lg', editable = false }
                 onClick={() => { fileRef.current?.click(); setMenuOpen(false) }}
                 className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
               >
-                Cambiar foto
+                {t('Cambiar foto')}
               </button>
               <button
                 onClick={handleDelete}
                 className="w-full text-left px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
               >
-                Eliminar foto
+                {t('Eliminar foto')}
               </button>
             </div>
           </>
@@ -164,7 +165,7 @@ export default function AvatarUpload({ employee, size = 'lg', editable = false }
         </p>
       )}
 
-      {/* CropModal — fuera del div relativo */}
+      {/* CropModal - fuera del div relativo */}
       <AnimatePresence>
         {cropSrc && (
           <CropModal

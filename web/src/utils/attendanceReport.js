@@ -7,28 +7,29 @@ import { docTypeLabel } from './labels'
 import { reportNote, reportStart } from './reportRange'
 import { todayISO } from './dates'
 import { XLSX_MIME, loadXlsx } from './xlsx'
+import { t } from '../i18n/index.js'
 
-const HEADERS = [
-  'Apellidos y Nombres', 'Tipo Documento', 'N° Documento', 'Cargo', 'Fecha', 'Estado',
-  'Entrada', 'Tardanza (min)',
-  'Inicio Refrigerio', 'Fin Refrigerio', 'Exceso Refrig. (min)',
-  'Salida', 'Salida Anticipada (min)',
-  'Total Horas', 'Horas Extra',
+const headers = () => [
+  t('Apellidos y Nombres'), t('Tipo Documento'), t('N° Documento'), t('Cargo'), t('Fecha'), t('Estado'),
+  t('Entrada'), t('Tardanza (min)'),
+  t('Inicio Refrigerio'), t('Fin Refrigerio'), t('Exceso Refrig. (min)'),
+  t('Salida'), t('Salida Anticipada (min)'),
+  t('Total Horas'), t('Horas Extra'),
 ]
 
 // The PDF is a compact version of the same table, so it fits a landscape page: indexes into a row.
 const PDF_COLUMNS = [
-  { title: 'Empleado', index: 0 },
-  { title: 'Documento', index: 2 },
-  { title: 'Fecha', index: 4 },
-  { title: 'Estado', index: 5 },
-  { title: 'Entrada', index: 6 },
-  { title: 'Tard. (min)', index: 7 },
-  { title: 'Ini. refrig.', index: 8 },
-  { title: 'Fin refrig.', index: 9 },
-  { title: 'Salida', index: 11 },
-  { title: 'Total horas', index: 13 },
-  { title: 'Horas extra', index: 14 },
+  { get title() { return t('Empleado') }, index: 0 },
+  { get title() { return t('Documento') }, index: 2 },
+  { get title() { return t('Fecha') }, index: 4 },
+  { get title() { return t('Estado') }, index: 5 },
+  { get title() { return t('Entrada') }, index: 6 },
+  { get title() { return t('Tard. (min)') }, index: 7 },
+  { get title() { return t('Ini. refrig.') }, index: 8 },
+  { get title() { return t('Fin refrig.') }, index: 9 },
+  { get title() { return t('Salida') }, index: 11 },
+  { get title() { return t('Total horas') }, index: 13 },
+  { get title() { return t('Horas extra') }, index: 14 },
 ]
 
 // The matrix of rows shared by CSV, Excel and PDF.
@@ -96,7 +97,7 @@ function baseFileName(businessName, dateFrom, dateTo) {
 // ─── CSV ────────────────────────────────────────────────────────────────────
 export function generateAttendanceCSV(data, dateFrom, dateTo) {
   const rows = buildRows(data, dateFrom, dateTo)
-  return [HEADERS.map(csvVal).join(','), ...rows.map(r => r.map(csvVal).join(','))].join('\n')
+  return [headers().map(csvVal).join(','), ...rows.map(r => r.map(csvVal).join(','))].join('\n')
 }
 
 export function downloadAttendanceCSV(csvString, businessName, dateFrom, dateTo) {
@@ -114,7 +115,7 @@ export function downloadAttendanceCSV(csvString, businessName, dateFrom, dateTo)
 export async function generateAttendanceXLSX(data, dateFrom, dateTo, businessName) {
   const XLSX = await loadXlsx()
   const rows = buildRows(data, dateFrom, dateTo)
-  const ws = XLSX.utils.aoa_to_sheet([HEADERS, ...rows])
+  const ws = XLSX.utils.aoa_to_sheet([headers(), ...rows])
 
   ws['!cols'] = [
     { wch: 28 }, { wch: 22 }, { wch: 14 }, { wch: 18 }, { wch: 11 }, { wch: 14 },
@@ -123,7 +124,7 @@ export async function generateAttendanceXLSX(data, dateFrom, dateTo, businessNam
   ]
 
   const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, 'Asistencia')
+  XLSX.utils.book_append_sheet(wb, ws, t('Asistencia'))
   const buffer = XLSX.write(wb, { type: 'array', bookType: 'xlsx' })
   return {
     blob: new Blob([buffer], { type: XLSX_MIME }),
@@ -143,13 +144,13 @@ export async function generateAttendancePDF(data, dateFrom, dateTo, business = {
 
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(15)
-  doc.text('Reporte de asistencia', 14, 16)
+  doc.text(t('Reporte de asistencia'), 14, 16)
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
   doc.text(business.name ?? '', 14, 22)
   if (business.tax_id) doc.text(business.tax_id, 14, 27)
   doc.text(`Periodo: ${dateFrom} a ${dateTo}`, pageWidth - 14, 16, { align: 'right' })
-  doc.text(`Generado: ${todayISO()}`, pageWidth - 14, 22, { align: 'right' })
+  doc.text(t('Generado: {0}', [todayISO()]), pageWidth - 14, 22, { align: 'right' })
 
   const note = reportNote(data.employees, dateFrom)
   if (note) {
@@ -170,7 +171,7 @@ export async function generateAttendancePDF(data, dateFrom, dateTo, business = {
     didDrawPage: () => {
       doc.setFontSize(8)
       doc.setTextColor(120)
-      doc.text(`Página ${doc.getNumberOfPages()}`, pageWidth - 14, doc.internal.pageSize.getHeight() - 6, { align: 'right' })
+      doc.text(t('Página {0}', [doc.getNumberOfPages()]), pageWidth - 14, doc.internal.pageSize.getHeight() - 6, { align: 'right' })
       doc.setTextColor(0)
     },
   })

@@ -9,7 +9,7 @@ import { useSchedules } from '../../hooks/useSchedules'
 import { useAttendanceReport } from '../../hooks/useAttendanceReport'
 import { useEmployeeJustifications } from '../../hooks/useEmployeeJustifications'
 import { computeEmployeeStats } from '../../utils/employeeStats'
-import { todayISO, formatShortDate as fmtDate, firstDayOfMonth, getAppLocale } from '../../utils/dates'
+import { todayISO, formatShortDate as fmtDate, firstDayOfMonth, getAppLocale, weekdayShort } from '../../utils/dates'
 import StatKpis from '../../components/stats/StatKpis'
 import AttendanceTrendChart from '../../components/stats/AttendanceTrendChart'
 import StatusDonut from '../../components/stats/StatusDonut'
@@ -17,13 +17,13 @@ import MonthHeatmap from '../../components/stats/MonthHeatmap'
 import EmployeeModal from '../../components/ui/EmployeeModal'
 import JustificationModal from '../../components/ui/JustificationModal'
 import AvatarUpload from '../../components/ui/AvatarUpload'
-import { ROLE_LABELS, ABSENCE_TYPE_LABELS as ABSENCE_LABELS } from '../../utils/labels'
+import { ROLE_LABELS, ABSENCE_TYPE_LABELS as ABSENCE_LABELS, documentText } from '../../utils/labels'
+import { t } from '../../i18n'
 
-const DOW = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const pad = n => String(n).padStart(2, '0')
-const fmtTime = t => (t ? t.slice(0, 5) : '')
+const fmtTime = time => (time ? time.slice(0, 5) : '')
 const formatDays = dows =>
-  Array.isArray(dows) ? dows.slice().sort((a, b) => a - b).map(d => DOW[d]).join(', ') : ''
+  Array.isArray(dows) ? dows.slice().sort((a, b) => a - b).map(d => weekdayShort(d)).join(', ') : ''
 
 function Field({ label, value }) {
   return (
@@ -36,7 +36,7 @@ function Field({ label, value }) {
 
 export default function EmployeeProfile() {
   const { id } = useParams()
-  const { business, isOwner, isAdmin } = useAuth()
+  const { business } = useAuth()
   const tolerance = business?.tolerance_minutes ?? 5
   const queryClient = useQueryClient()
 
@@ -78,13 +78,13 @@ export default function EmployeeProfile() {
   }
 
   if (isLoading) {
-    return <div className="p-6 text-sm text-slate-500">Cargando ficha...</div>
+    return <div className="p-6 text-sm text-slate-500">{t('Cargando ficha...')}</div>
   }
   if (!emp) {
     return (
       <div className="p-6">
-        <Link to="/employees" className="text-sm text-blue-600 hover:underline">← Empleados</Link>
-        <p className="mt-4 text-sm text-slate-500">Empleado no encontrado.</p>
+        <Link to="/employees" className="text-sm text-blue-600 hover:underline">{t('← Empleados')}</Link>
+        <p className="mt-4 text-sm text-slate-500">{t('Empleado no encontrado.')}</p>
       </div>
     )
   }
@@ -93,7 +93,7 @@ export default function EmployeeProfile() {
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <Link to="/employees" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-4">
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-        Empleados
+        {t('Empleados')}
       </Link>
 
       {/* Cabecera */}
@@ -102,10 +102,10 @@ export default function EmployeeProfile() {
         <div className="flex-1 min-w-0">
           <h1 className="text-lg font-semibold text-slate-900 truncate">{emp.name} {emp.last_name}</h1>
           <p className="text-sm text-slate-500">
-            {emp.puesto || 'Sin puesto'} · {ROLE_LABELS[emp.role] ?? emp.role}
+            {emp.puesto || t('Sin puesto')} · {ROLE_LABELS[emp.role] ?? emp.role}
             {' · '}
             <span className={emp.active ? 'text-green-600' : 'text-slate-400'}>
-              {emp.active ? 'Activo' : 'Inactivo'}
+              {emp.active ? t('Activo') : t('Inactivo')}
             </span>
           </p>
         </div>
@@ -114,32 +114,32 @@ export default function EmployeeProfile() {
           className="shrink-0 inline-flex items-center gap-2 border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium py-2 px-4 rounded-lg text-sm transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-          Editar
+          {t('Editar')}
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         {/* Datos */}
         <div className="bg-white rounded-xl border border-slate-200 p-5 lg:col-span-2">
-          <h2 className="text-sm font-semibold text-slate-800 mb-4">Datos</h2>
+          <h2 className="text-sm font-semibold text-slate-800 mb-4">{t('Datos')}</h2>
           <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <Field label="Documento" value={`${emp.doc_type ?? 'DNI'} ${emp.dni ?? ''}`.trim()} />
-            <Field label="Correo" value={emp.email} />
-            <Field label="Teléfono" value={emp.phone} />
-            <Field label="Nacimiento" value={fmtDate(emp.birth_date)} />
-            <Field label="Sexo" value={emp.sex === 'M' ? 'Masculino' : emp.sex === 'F' ? 'Femenino' : '-'} />
-            <Field label="Área" value={departments.find(d => d.id === emp.department_id)?.name} />
-            <Field label="Registrado" value={fmtDate((emp.created_at ?? '').slice(0, 10))} />
+            <Field label={t('Documento')} value={documentText(emp.doc_type, emp.dni)} />
+            <Field label={t('Correo')} value={emp.email} />
+            <Field label={t('Teléfono')} value={emp.phone} />
+            <Field label={t('Nacimiento')} value={fmtDate(emp.birth_date)} />
+            <Field label={t('Sexo')} value={emp.sex === 'M' ? t('Masculino') : emp.sex === 'F' ? t('Femenino') : '-'} />
+            <Field label={t('Área')} value={departments.find(d => d.id === emp.department_id)?.name} />
+            <Field label={t('Registrado')} value={fmtDate((emp.created_at ?? '').slice(0, 10))} />
           </dl>
         </div>
 
         {/* Horario */}
         <div className="bg-white rounded-xl border border-slate-200 p-5">
           <h2 className="text-sm font-semibold text-slate-800 mb-4">
-            Horario {ownBlocks.length ? <span className="text-xs font-normal text-blue-600">(propio)</span> : <span className="text-xs font-normal text-slate-400">(general)</span>}
+            {t('Horario')}{' '}{ownBlocks.length ? <span className="text-xs font-normal text-blue-600">{t('(propio)')}</span> : <span className="text-xs font-normal text-slate-400">{t('(general)')}</span>}
           </h2>
           {scheduleBlocks.length === 0 ? (
-            <p className="text-sm text-slate-400">Sin horario asignado.</p>
+            <p className="text-sm text-slate-400">{t('Sin horario asignado.')}</p>
           ) : (
             <ul className="space-y-3">
               {scheduleBlocks.map(b => (
@@ -148,7 +148,7 @@ export default function EmployeeProfile() {
                   <p className="text-slate-500">
                     {fmtTime(b.start_time)}–{fmtTime(b.end_time)}
                     {b.break_start && b.break_end && (
-                      <span className="text-slate-400"> · Refrig. {fmtTime(b.break_start)}–{fmtTime(b.break_end)}</span>
+                      <span className="text-slate-400">{' '}{t('· Refrig.')}{' '}{fmtTime(b.break_start)}–{fmtTime(b.break_end)}</span>
                     )}
                   </p>
                 </li>
@@ -161,16 +161,16 @@ export default function EmployeeProfile() {
       {/* Estadísticas */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-slate-800">Estadísticas</h2>
+          <h2 className="text-sm font-semibold text-slate-800">{t('Estadísticas')}</h2>
           {(
             <div className="flex items-center gap-1">
               <button onClick={() => setMonthDate(firstDayOfMonth(monthDate, -1))}
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50" aria-label="Mes anterior">
+                className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50" aria-label={t('Mes anterior')}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
               </button>
               <span className="text-xs font-medium text-slate-600 capitalize w-28 text-center select-none">{monthLabel}</span>
               <button onClick={() => !isCurrentMonth && setMonthDate(firstDayOfMonth(monthDate, 1))} disabled={isCurrentMonth}
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Mes siguiente">
+                className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed" aria-label={t('Mes siguiente')}>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               </button>
             </div>
@@ -192,15 +192,15 @@ export default function EmployeeProfile() {
       {/* Ausencias */}
       <div className="bg-white rounded-xl border border-slate-200 p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-slate-800">Ausencias</h2>
+          <h2 className="text-sm font-semibold text-slate-800">{t('Ausencias')}</h2>
           <button onClick={() => setJustOpen(true)}
             className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            Registrar
+            {t('Registrar')}
           </button>
         </div>
         {justifications.length === 0 ? (
-          <p className="text-sm text-slate-400">Sin ausencias registradas.</p>
+          <p className="text-sm text-slate-400">{t('Sin ausencias registradas.')}</p>
         ) : (
           <ul className="divide-y divide-slate-100">
             {justifications.map(j => (

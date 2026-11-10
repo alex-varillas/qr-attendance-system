@@ -1,21 +1,22 @@
 import { useRef, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { t } from '../../i18n'
 
 /**
  * Dropdown estilizado al mismo nivel visual que el DatePicker del Dashboard.
  * Props:
- *   value       — valor seleccionado ('' = todo / default)
- *   onChange    — (value: string) => void
- *   options     — [{ value: string, label: string }]
- *   placeholder — texto cuando value === ''   (default 'Seleccionar')
- *   icon        — ReactNode opcional en el trigger
- *   block       — boolean: ancho completo, colores neutros (para formularios)
+ *   value       - valor seleccionado ('' = todo / default)
+ *   onChange    - (value: string) => void
+ *   options     - [{ value: string, label: string }]
+ *   placeholder - texto cuando value === ''   (default 'Seleccionar')
+ *   icon        - ReactNode opcional en el trigger
+ *   block       - boolean: ancho completo, colores neutros (para formularios)
  */
 export default function FilterSelect({
   value,
   onChange,
   options,
-  placeholder = 'Seleccionar',
+  placeholder = t('Seleccionar'),
   icon,
   block = false,
 }) {

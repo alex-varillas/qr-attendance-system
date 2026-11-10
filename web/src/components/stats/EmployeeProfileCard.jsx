@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom'
-import { formatShortDate } from '../../utils/dates'
+import { formatShortDate, weekdayShort } from '../../utils/dates'
 import { minutesToReadable } from '../../utils/attendance'
 import AvatarUpload from '../ui/AvatarUpload'
-import { ROLE_LABELS } from '../../utils/labels'
+import { ROLE_LABELS, documentText } from '../../utils/labels'
+import { t, tn } from '../../i18n'
 
-const DOW = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
-const fmtTime = t => (t ? t.slice(0, 5) : null)
+const fmtTime = time => (time ? time.slice(0, 5) : null)
 const formatDays = dows =>
   Array.isArray(dows) && dows.length > 0
-    ? dows.slice().sort((a, b) => a - b).map(d => DOW[d]).join(', ')
+    ? dows.slice().sort((a, b) => a - b).map(d => weekdayShort(d)).join(', ')
     : null
 
 // Muestra el teléfono solo si contiene caracteres válidos (dígitos, +, espacios, guiones)
@@ -19,12 +19,12 @@ function antiguedad(createdAt) {
   const desde = new Date(createdAt)
   const ahora = new Date()
   const meses = (ahora.getFullYear() - desde.getFullYear()) * 12 + (ahora.getMonth() - desde.getMonth())
-  if (meses < 1) return 'Menos de 1 mes'
-  if (meses < 12) return `${meses} ${meses === 1 ? 'mes' : 'meses'}`
+  if (meses < 1) return t('Menos de 1 mes')
+  if (meses < 12) return tn(meses, '{0} mes', '{0} meses')
   const años = Math.floor(meses / 12)
   const resto = meses % 12
-  const base = `${años} ${años === 1 ? 'año' : 'años'}`
-  return resto > 0 ? `${base} y ${resto} ${resto === 1 ? 'mes' : 'meses'}` : base
+  const base = tn(años, '{0} año', '{0} años')
+  return resto > 0 ? t('{0} y {1}', [base, tn(resto, '{0} mes', '{0} meses')]) : base
 }
 
 function Row({ label, value }) {
@@ -47,12 +47,12 @@ function Section({ title, children }) {
 
 /**
  * Props:
- *   employee    — objeto empleado (con photo_url opcional)
- *   departments — array de departamentos
- *   schedules   — array de horarios del reporte
- *   kpis        — (opcional) resultado de computeEmployeeStats.kpis, para la sección "Mes"
- *   insights    — (opcional) resultado de computeEmployeeStats.insights
- *   monthLabel  — (opcional) string, ej. "junio 2026"
+ *   employee    - objeto empleado (con photo_url opcional)
+ *   departments - array de departamentos
+ *   schedules   - array de horarios del reporte
+ *   kpis        - (opcional) resultado de computeEmployeeStats.kpis, para la sección "Mes"
+ *   insights    - (opcional) resultado de computeEmployeeStats.insights
+ *   monthLabel  - (opcional) string, ej. "junio 2026"
  */
 export default function EmployeeProfileCard({ employee, departments = [], schedules = [], kpis, insights, monthLabel }) {
   if (!employee) return null
@@ -65,7 +65,7 @@ export default function EmployeeProfileCard({ employee, departments = [], schedu
     ? ownBlocks
     : schedules.filter(s => s.is_default && s.employee_id == null && s.active)
 
-  const sexLabel = employee.sex === 'M' ? 'Masculino' : employee.sex === 'F' ? 'Femenino' : null
+  const sexLabel = employee.sex === 'M' ? t('Masculino') : employee.sex === 'F' ? t('Femenino') : null
 
   const hasKpis = kpis && (kpis.diasLaborables > 0 || kpis.horasMin > 0)
 
@@ -85,24 +85,24 @@ export default function EmployeeProfileCard({ employee, departments = [], schedu
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
               employee.active ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-600'
             }`}>
-              {employee.active ? 'Activo' : 'Inactivo'}
+              {employee.active ? t('Activo') : t('Inactivo')}
             </span>
           </div>
         </div>
       </div>
 
       {/* Sección Laboral */}
-      <Section title="Laboral">
-        <Row label="Área" value={dept?.name} />
-        <Row label="Rol" value={ROLE_LABELS[employee.role] ?? employee.role} />
+      <Section title={t('Laboral')}>
+        <Row label={t('Área')} value={dept?.name} />
+        <Row label={t('Rol')} value={ROLE_LABELS[employee.role] ?? employee.role} />
         <Row
-          label="Días lab."
+          label={t('Días lab.')}
           value={scheduleBlocks.length > 0
             ? scheduleBlocks.map(b => formatDays(b.days_of_week)).filter(Boolean).join(' / ')
             : null}
         />
         <Row
-          label="Horario"
+          label={t('Horario')}
           value={scheduleBlocks.length > 0
             ? scheduleBlocks.map(b => {
                 const from = fmtTime(b.start_time)
@@ -111,38 +111,38 @@ export default function EmployeeProfileCard({ employee, departments = [], schedu
               }).filter(Boolean).join(' / ')
             : null}
         />
-        <Row label="Antigüedad" value={antiguedad(employee.created_at)} />
+        <Row label={t('Antigüedad')} value={antiguedad(employee.created_at)} />
       </Section>
 
       {/* Sección Datos personales */}
-      <Section title="Datos personales">
-        <Row label="Documento" value={[employee.doc_type ?? 'DNI', employee.dni].filter(Boolean).join(' ') || null} />
-        <Row label="Correo" value={employee.email} />
-        <Row label="Teléfono" value={sanitizePhone(employee.phone)} />
-        <Row label="Nacimiento" value={formatShortDate(employee.birth_date)} />
-        {sexLabel && <Row label="Sexo" value={sexLabel} />}
+      <Section title={t('Datos personales')}>
+        <Row label={t('Documento')} value={documentText(employee.doc_type, employee.dni)} />
+        <Row label={t('Correo')} value={employee.email} />
+        <Row label={t('Teléfono')} value={sanitizePhone(employee.phone)} />
+        <Row label={t('Nacimiento')} value={formatShortDate(employee.birth_date)} />
+        {sexLabel && <Row label={t('Sexo')} value={sexLabel} />}
       </Section>
 
       {/* Sección Estadísticas del mes (solo si hay datos) */}
       {hasKpis && (
-        <Section title={monthLabel ? `Estadísticas · ${monthLabel}` : 'Estadísticas del mes'}>
+        <Section title={monthLabel ? t('Estadísticas · {0}', [monthLabel]) : t('Estadísticas del mes')}>
           <Row
-            label="Asistencia"
+            label={t('Asistencia')}
             value={kpis.asistenciaPct != null ? `${kpis.asistenciaPct}%` : '-'}
           />
           <Row
-            label="Puntualidad"
+            label={t('Puntualidad')}
             value={insights?.puntualidadPct != null ? `${insights.puntualidadPct}%` : '-'}
           />
           <Row
-            label="Tardanzas"
-            value={kpis.tardanzasCount > 0 ? `${kpis.tardanzasCount} veces` : 'Sin tardanzas'}
+            label={t('Tardanzas')}
+            value={kpis.tardanzasCount > 0 ? t('{0} veces', [kpis.tardanzasCount]) : t('Sin tardanzas')}
           />
           {kpis.tardanzasCount > 0 && (
-            <Row label="Tiempo acum." value={minutesToReadable(kpis.tardanzasMin)} />
+            <Row label={t('Tiempo acum.')} value={minutesToReadable(kpis.tardanzasMin)} />
           )}
           <Row
-            label="Horas trabajadas"
+            label={t('Horas trabajadas')}
             value={kpis.horasMin > 0 ? minutesToReadable(kpis.horasMin) : '-'}
           />
         </Section>
@@ -154,7 +154,7 @@ export default function EmployeeProfileCard({ employee, departments = [], schedu
           to={`/employees/${employee.id}`}
           className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
         >
-          Ver perfil completo
+          {t('Ver perfil completo')}
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>

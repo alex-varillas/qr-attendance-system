@@ -24,6 +24,11 @@ export default [
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      // A variable called t hides the translation function t(...) and breaks the texts in its scope.
+      'no-restricted-syntax': ['error',
+        { selector: ":function > Identifier.params[name='t']", message: 'Do not name a parameter t: it hides the translation function.' },
+        { selector: "VariableDeclarator > Identifier.id[name='t']", message: 'Do not name a variable t: it hides the translation function.' },
+      ],
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_|^[A-Z]|^motion$', ignoreRestSiblings: true }],
     },
   },

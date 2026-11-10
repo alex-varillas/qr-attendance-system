@@ -5,6 +5,8 @@ import { api } from '../../lib/api'
 import { avatarGradient } from '../../utils/avatar'
 import { BRAND_GRADIENT } from '../../utils/theme'
 import { requestLocation } from '../../utils/geolocation'
+import { t } from '../../i18n'
+import { serverMessage } from '../../i18n/serverMessages'
 
 const stepVariants = {
   hidden:  { opacity: 0, y: 12, scale: 0.98 },
@@ -13,10 +15,10 @@ const stepVariants = {
 }
 
 const TYPE_CONFIG = {
-  checkin:     { label: 'Entrada registrada',   color: 'text-green-600',  bg: 'bg-green-50',  icon: '✓', accent: '#16a34a' },
-  break_start: { label: 'Inicio de refrigerio', color: 'text-amber-600',  bg: 'bg-amber-50',  icon: '☕', accent: '#d97706' },
-  break_end:   { label: 'Fin de refrigerio',    color: 'text-blue-600',   bg: 'bg-blue-50',   icon: '↩', accent: '#2563eb' },
-  checkout:    { label: 'Salida registrada',    color: 'text-slate-600',  bg: 'bg-slate-50',  icon: '👋', accent: '#475569' },
+  checkin:     { get label() { return t('Entrada registrada') },   color: 'text-green-600',  bg: 'bg-green-50',  icon: '✓', accent: '#16a34a' },
+  break_start: { get label() { return t('Inicio de refrigerio') }, color: 'text-amber-600',  bg: 'bg-amber-50',  icon: '☕', accent: '#d97706' },
+  break_end:   { get label() { return t('Fin de refrigerio') },    color: 'text-blue-600',   bg: 'bg-blue-50',   icon: '↩', accent: '#2563eb' },
+  checkout:    { get label() { return t('Salida registrada') },    color: 'text-slate-600',  bg: 'bg-slate-50',  icon: '👋', accent: '#475569' },
 }
 
 // Tras marcar, cuánto se muestra la pantalla de éxito antes de volver a la
@@ -25,17 +27,17 @@ const SUCCESS_RESET_MS = 6000
 
 // What the person sees for each reason the server can refuse a mark.
 const ERROR_MESSAGES = {
-  employee_not_found: 'No encontramos a este empleado.',
-  wrong_location: 'Este empleado no puede marcar en esta sede.',
-  pin_required: 'Ingresa tu PIN.',
-  pin_invalid: 'PIN incorrecto.',
-  pin_locked: 'Demasiados intentos. Intenta de nuevo en 5 minutos.',
-  geo_required: 'Debes activar y permitir tu ubicación para registrar asistencia.',
-  geo_invalid: 'No pudimos leer tu ubicación correctamente. Actívala e intenta nuevamente.',
-  geo_misconfigured: 'La ubicación del local no está configurada. Avisa al administrador.',
-  geo_out_of_range: 'Estás fuera del área permitida para marcar asistencia. Acércate a la ubicación configurada e intenta nuevamente.',
-  location_not_found: 'Este código QR ya no es válido.',
-  not_configured: 'El sistema todavía no está configurado.',
+  get employee_not_found() { return t('No encontramos a este empleado.') },
+  get wrong_location() { return t('Este empleado no puede marcar en esta sede.') },
+  get pin_required() { return t('Ingresa tu PIN.') },
+  get pin_invalid() { return t('PIN incorrecto.') },
+  get pin_locked() { return t('Demasiados intentos. Intenta de nuevo en 5 minutos.') },
+  get geo_required() { return t('Debes activar y permitir tu ubicación para registrar asistencia.') },
+  get geo_invalid() { return t('No pudimos leer tu ubicación correctamente. Actívala e intenta nuevamente.') },
+  get geo_misconfigured() { return t('La ubicación del local no está configurada. Avisa al administrador.') },
+  get geo_out_of_range() { return t('Estás fuera del área permitida para marcar asistencia. Acércate a la ubicación configurada e intenta nuevamente.') },
+  get location_not_found() { return t('Este código QR ya no es válido.') },
+  get not_configured() { return t('El sistema todavía no está configurado.') },
 }
 
 const STEP_LIST      = 'list'
@@ -47,7 +49,6 @@ const STEP_ERROR     = 'error'
 
 /* ── Logo reutilizable ─────────────────────────────── */
 function AsistiaLogo({ size = 32 }) {
-  const r = size * 0.28
   return (
     <div
       className="flex items-center justify-center shrink-0 rounded-[28%]"
@@ -95,7 +96,7 @@ function Header({ businessName }) {
     <div className="flex flex-col items-center text-center mb-6 gap-2">
       <AsistiaLogo size={48} />
       <p className="text-sm font-semibold text-blue-600 tracking-wide">
-        Check-in Asistia
+        {t('Check-in Asistia')}
       </p>
       <p className="text-base font-semibold text-slate-700">
         {businessName ?? '...'}
@@ -154,8 +155,8 @@ export default function Checkin() {
 
   useEffect(() => {
     if (step !== STEP_SUCCESS) return
-    const t = setTimeout(resetFlow, SUCCESS_RESET_MS)
-    return () => clearTimeout(t)
+    const timer = setTimeout(resetFlow, SUCCESS_RESET_MS)
+    return () => clearTimeout(timer)
   }, [step])
 
   function resetFlow() {
@@ -200,7 +201,7 @@ export default function Checkin() {
     } catch (err) {
       setSubmitting(false)
       // A refusal from the server carries its reason; anything else is a connection problem.
-      if (!err.body?.code) { setErrorMsg('Error de conexión. Intenta nuevamente.'); setStep(STEP_ERROR); return }
+      if (!err.body?.code) { setErrorMsg(t('Error de conexión. Intenta nuevamente.')); setStep(STEP_ERROR); return }
       data = { ok: false, ...err.body }
     }
     setSubmitting(false)
@@ -213,7 +214,7 @@ export default function Checkin() {
         if (data.code === 'geo_required' || data.code === 'geo_invalid') {
           setContext(c => (c ? { ...c, geo_enabled: true } : c))
         }
-        setErrorMsg(ERROR_MESSAGES[data.code] ?? data.error ?? 'No se pudo registrar la asistencia.'); setStep(STEP_ERROR)
+        setErrorMsg(ERROR_MESSAGES[data.code] ?? serverMessage(data.error) ?? t('No se pudo registrar la asistencia.')); setStep(STEP_ERROR)
       }
       return
     }
@@ -243,7 +244,7 @@ export default function Checkin() {
         <div className="w-full max-w-sm">
           <Card className="p-10 flex flex-col items-center gap-3">
             <div className="w-8 h-8 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
-            <p className="text-sm text-slate-400">Cargando...</p>
+            <p className="text-sm text-slate-400">{t('Cargando...')}</p>
           </Card>
         </div>
       </PageWrap>
@@ -257,8 +258,8 @@ export default function Checkin() {
         <Header businessName={displayName} />
         <div className="w-full max-w-sm">
           <Card className="p-10 text-center">
-            <p className="text-slate-800 font-semibold mb-1">Sin empleados registrados</p>
-            <p className="text-slate-400 text-sm">Pide al administrador que agregue empleados.</p>
+            <p className="text-slate-800 font-semibold mb-1">{t('Sin empleados registrados')}</p>
+            <p className="text-slate-400 text-sm">{t('Pide al administrador que agregue empleados.')}</p>
           </Card>
         </div>
       </PageWrap>
@@ -288,7 +289,7 @@ export default function Checkin() {
                   type="text"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="Buscar por nombre..."
+                  placeholder={t('Buscar por nombre...')}
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
                   autoFocus
                 />
@@ -298,14 +299,14 @@ export default function Checkin() {
             {/* Label */}
             <div className="px-4 py-2.5">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                Selecciona tu nombre
+                {t('Selecciona tu nombre')}
               </p>
             </div>
 
             {/* Lista */}
             <div className="overflow-y-auto" style={{ maxHeight: '52vh' }}>
               {filtered.length === 0 ? (
-                <p className="text-center text-sm text-slate-400 py-10">Sin resultados</p>
+                <p className="text-center text-sm text-slate-400 py-10">{t('Sin resultados')}</p>
               ) : (
                 <div className="divide-y divide-slate-100">
                   {filtered.map(emp => {
@@ -374,23 +375,23 @@ export default function Checkin() {
                   }}
                 >
                   {submitting
-                    ? 'Registrando...'
+                    ? t('Registrando...')
                     : selected
-                      ? `Registrar asistencia de ${selected.name} ${selected.last_name}`
-                      : 'Selecciona tu nombre'}
+                      ? t('Registrar asistencia de {0} {1}', [selected.name, selected.last_name])
+                      : t('Selecciona tu nombre')}
                 </button>
                 {selected && (
                   <button
                     onClick={() => setSelected(null)}
                     className="w-full mt-2 text-xs text-slate-400 hover:text-slate-600 transition-colors py-1"
                   >
-                    Cancelar selección
+                    {t('Cancelar selección')}
                   </button>
                 )}
               </div>
               <div className="px-4 pb-3 text-center">
                 <p className="text-[10px] text-slate-400">
-                  {filtered.length} de {employees.length} empleados
+                  {filtered.length}{' '}{t('de')}{' '}{employees.length}{' '}{t('empleados')}
                 </p>
               </div>
             </div>
@@ -409,7 +410,7 @@ export default function Checkin() {
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Volver
+              {t('Volver')}
             </button>
 
             <div className="text-center mb-6">
@@ -420,7 +421,7 @@ export default function Checkin() {
                 {selected?.name[0]?.toUpperCase()}
               </div>
               <p className="font-semibold text-slate-900">{selected?.name} {selected?.last_name}</p>
-              <p className="text-sm text-slate-400 mt-0.5">Ingresa tu PIN de 4 dígitos</p>
+              <p className="text-sm text-slate-400 mt-0.5">{t('Ingresa tu PIN de 4 dígitos')}</p>
             </div>
 
             <form onSubmit={handlePinSubmit}>
@@ -440,7 +441,7 @@ export default function Checkin() {
                 className="w-full mt-4 text-white font-semibold py-3 rounded-xl text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: BRAND_GRADIENT, boxShadow: pin.length === 4 ? '0 4px 16px rgba(46,125,233,0.35)' : 'none' }}
               >
-                {submitting ? 'Verificando...' : 'Marcar asistencia'}
+                {submitting ? t('Verificando...') : t('Marcar asistencia')}
               </button>
             </form>
           </Card>
@@ -464,16 +465,16 @@ export default function Checkin() {
                   d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
             </div>
-            <h2 className="text-base font-semibold text-slate-800 mb-2">Jornada completa</h2>
+            <h2 className="text-base font-semibold text-slate-800 mb-2">{t('Jornada completa')}</h2>
             <p className="text-slate-500 text-sm">
               <span className="font-medium text-slate-700">{selected?.name} {selected?.last_name}</span>
-              {' '}ya registró todas sus marcaciones de hoy.
+              {' '}{t('ya registró todas sus marcaciones de hoy.')}
             </p>
             <button
               onClick={resetFlow}
               className="mt-6 w-full border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium py-2.5 rounded-xl text-sm transition-colors"
             >
-              Volver a la lista
+              {t('Volver a la lista')}
             </button>
           </Card>
           </motion.div>
@@ -488,13 +489,13 @@ export default function Checkin() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h2 className="text-base font-semibold text-slate-800 mb-2">No se pudo registrar</h2>
+            <h2 className="text-base font-semibold text-slate-800 mb-2">{t('No se pudo registrar')}</h2>
             <p className="text-rose-500 text-sm leading-relaxed">{errorMsg}</p>
             <button
               onClick={resetFlow}
               className="mt-6 w-full border border-slate-200 hover:bg-slate-50 text-slate-600 font-medium py-2.5 rounded-xl text-sm transition-colors"
             >
-              Intentar nuevamente
+              {t('Intentar nuevamente')}
             </button>
           </Card>
           </motion.div>
@@ -538,12 +539,12 @@ function SuccessScreen({ result, onReset }) {
         <p className="text-slate-800 font-semibold">{result.employee.name} {result.employee.last_name}</p>
         <p className="text-2xl font-mono font-bold text-slate-900 mt-2">{time}</p>
 
-        <p className="text-slate-400 text-xs mt-5">Esta pantalla se reiniciará en unos segundos...</p>
+        <p className="text-slate-400 text-xs mt-5">{t('Esta pantalla se reiniciará en unos segundos...')}</p>
         <button
           onClick={onReset}
           className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
         >
-          Marcar otro empleado →
+          {t('Marcar otro empleado →')}
         </button>
       </div>
     </div>

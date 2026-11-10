@@ -1,6 +1,7 @@
 import { dateRange } from '../../utils/attendanceCore'
+import { weekdayInitials } from '../../utils/dates'
+import { t } from '../../i18n'
 
-const WEEKDAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
 const pad = n => String(n).padStart(2, '0')
 
 /**
@@ -35,9 +36,9 @@ export default function LeaveCalendar({ justifications = [], employees = [], mon
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
-      <h3 className="text-sm font-semibold text-slate-800 mb-3">Ausencias del mes</h3>
+      <h3 className="text-sm font-semibold text-slate-800 mb-3">{t('Ausencias del mes')}</h3>
       <div className="grid grid-cols-7 gap-1 mb-1">
-        {WEEKDAYS.map((w, i) => (
+        {weekdayInitials().map((w, i) => (
           <div key={i} className="text-center text-[10px] font-semibold text-slate-400">{w}</div>
         ))}
       </div>
@@ -57,7 +58,7 @@ export default function LeaveCalendar({ justifications = [], employees = [], mon
           ) : <div key={i} />
         ))}
       </div>
-      <p className="text-[10px] text-slate-400 mt-3">El número indica cuántas personas están de ausencia ese día.</p>
+      <p className="text-[10px] text-slate-400 mt-3">{t('El número indica cuántas personas están de ausencia ese día.')}</p>
     </div>
   )
 }

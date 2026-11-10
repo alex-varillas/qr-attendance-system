@@ -5,12 +5,14 @@ import { useCreateEmployee, useUpdateEmployee, useSetAdminPermission, useRemoveE
 import { useDepartments } from '../../hooks/useDepartments'
 import { useLocations } from '../../hooks/useLocations'
 import { useSchedules, useSetSchedules, useDeleteSchedule } from '../../hooks/useSchedules'
-import ScheduleBlocksEditor, { EMPTY_BLOCK, schedulesToBlocks, blocksToPayload, validateBlocks } from './ScheduleBlocksEditor'
+import ScheduleBlocksEditor from './ScheduleBlocksEditor'
+import { EMPTY_BLOCK, schedulesToBlocks, blocksToPayload, validateBlocks } from '../../utils/scheduleBlocks'
 import ExceptionsSection from './ExceptionsSection'
 import { useAuth } from '../../hooks/useAuth.jsx'
 import { DOC_TYPES } from '../../utils/labels'
 import AvatarUpload from './AvatarUpload'
 import FilterSelect from './FilterSelect'
+import { t } from '../../i18n'
 
 const EMPTY_FORM = {
   name: '',
@@ -100,7 +102,7 @@ export default function EmployeeModal({ employee, onClose }) {
       setPinJustRemoved(true)
       set('pin', '')
     } catch (err) {
-      setPinError(err.message ?? 'No se pudo quitar el PIN.')
+      setPinError(err.message ?? t('No se pudo quitar el PIN.'))
     }
   }
 
@@ -119,7 +121,7 @@ export default function EmployeeModal({ employee, onClose }) {
     }
 
     if (form.pin && !/^\d{4}$/.test(form.pin)) {
-      setError('El PIN debe ser exactamente 4 dígitos numéricos.')
+      setError(t('El PIN debe ser exactamente 4 dígitos numéricos.'))
       return
     }
 
@@ -164,7 +166,7 @@ export default function EmployeeModal({ employee, onClose }) {
 
       onClose()
     } catch (err) {
-      setError(err.message ?? 'Ocurrió un error. Intenta nuevamente.')
+      setError(err.message ?? t('Ocurrió un error. Intenta nuevamente.'))
     }
   }
 
@@ -175,18 +177,18 @@ export default function EmployeeModal({ employee, onClose }) {
     <>
     <Modal
       onClose={onClose}
-      ariaLabel={isEditing ? 'Editar empleado' : 'Agregar empleado'}
+      ariaLabel={isEditing ? t('Editar empleado') : t('Agregar empleado')}
       className="bg-white rounded-xl shadow-lg w-full max-w-md max-h-[90vh] flex flex-col"
     >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 shrink-0">
           <h2 className="text-base font-semibold text-slate-800">
-            {isEditing ? 'Editar empleado' : 'Agregar empleado'}
+            {isEditing ? t('Editar empleado') : t('Agregar empleado')}
           </h2>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 transition-colors"
-            aria-label="Cerrar"
+            aria-label={t('Cerrar')}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -194,20 +196,20 @@ export default function EmployeeModal({ employee, onClose }) {
           </button>
         </div>
 
-        {/* Form — scrollable */}
+        {/* Form - scrollable */}
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4 overflow-y-auto">
-          {/* Foto de perfil — solo cuando se edita un empleado existente */}
+          {/* Foto de perfil - solo cuando se edita un empleado existente */}
           {isEditing && (
             <div className="flex flex-col items-center gap-1.5 pb-2 border-b border-slate-100">
               <AvatarUpload employee={employee} size="xl" editable />
-              <p className="text-xs text-slate-400">Foto de perfil (opcional)</p>
+              <p className="text-xs text-slate-400">{t('Foto de perfil (opcional)')}</p>
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Nombre <span className="text-rose-500">*</span>
+                {t('Nombre')}{' '}<span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
@@ -215,12 +217,12 @@ export default function EmployeeModal({ employee, onClose }) {
                 value={form.name}
                 onChange={e => set('name', e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Juan"
+                placeholder={t('Juan')}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Apellido <span className="text-rose-500">*</span>
+                {t('Apellido')}{' '}<span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
@@ -228,7 +230,7 @@ export default function EmployeeModal({ employee, onClose }) {
                 value={form.last_name}
                 onChange={e => set('last_name', e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Pérez"
+                placeholder={t('Pérez')}
               />
             </div>
           </div>
@@ -236,7 +238,7 @@ export default function EmployeeModal({ employee, onClose }) {
           {/* Documento de identidad */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              Documento de identidad
+              {t('Documento de identidad')}
             </label>
             <div className="flex gap-2">
               <select
@@ -254,64 +256,64 @@ export default function EmployeeModal({ employee, onClose }) {
                 onChange={e => set('dni', e.target.value)}
                 maxLength={docTypes.find(dt => dt.value === form.doc_type)?.maxLen ?? 12}
                 className="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Nro. de documento"
+                placeholder={t('Nro. de documento')}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Puesto</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('Puesto')}</label>
               <input
                 type="text"
                 value={form.puesto}
                 onChange={e => set('puesto', e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Vendedor"
+                placeholder={t('Vendedor')}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Área</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('Área')}</label>
               <FilterSelect
                 block
                 value={form.department_id}
                 onChange={v => set('department_id', v)}
-                placeholder="Sin área"
+                placeholder={t('Sin área')}
                 options={[
-                  { value: '', label: 'Sin área' },
+                  { value: '', label: t('Sin área') },
                   ...departments.map(d => ({ value: d.id, label: d.name })),
                 ]}
               />
             </div>
           </div>
 
-          {/* Sede asignada — solo Business con sedes creadas. Restringe en qué
-              QR puede marcar el empleado (registrar_marcacion lo valida en
-              backend); sin asignar = puede marcar en cualquier sede. */}
+          {/* Sede asignada - solo si hay sedes creadas. Restringe en qué QR puede
+              marcar el empleado (el servidor lo valida); sin asignar = puede
+              marcar en cualquier sede. */}
           {locations.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Sede asignada</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('Sede asignada')}</label>
               <FilterSelect
                 block
                 value={form.location_id}
                 onChange={v => set('location_id', v)}
-                placeholder="Cualquier sede"
+                placeholder={t('Cualquier sede')}
                 options={[
-                  { value: '', label: 'Cualquier sede' },
+                  { value: '', label: t('Cualquier sede') },
                   ...locations.map(l => ({ value: l.id, label: l.name })),
                 ]}
               />
               <p className="text-xs text-slate-400 mt-1">
-                Si asignas una sede, este empleado solo podrá marcar desde el QR de esa sede.
+                {t('Si asignas una sede, este empleado solo podrá marcar desde el QR de esa sede.')}
               </p>
             </div>
           )}
 
-          {/* Fecha de nacimiento + Sexo (opcionales; requeridos en el reporte de Colombia) */}
+          {/* Fecha de nacimiento + Sexo (opcionales) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Fecha de nacimiento <span className="text-xs text-slate-400 font-normal">(opcional)</span>
+                {t('Fecha de nacimiento')}{' '}<span className="text-xs text-slate-400 font-normal">{t('(opcional)')}</span>
               </label>
               <input
                 type="date"
@@ -323,7 +325,7 @@ export default function EmployeeModal({ employee, onClose }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Sexo <span className="text-xs text-slate-400 font-normal">(opcional)</span>
+                {t('Sexo')}{' '}<span className="text-xs text-slate-400 font-normal">{t('(opcional)')}</span>
               </label>
               <FilterSelect
                 block
@@ -332,9 +334,9 @@ export default function EmployeeModal({ employee, onClose }) {
                 placeholder="-"
                 options={[
                   { value: '', label: '-' },
-                  { value: 'M', label: 'Masculino' },
-                  { value: 'F', label: 'Femenino' },
-                  { value: 'X', label: 'Otro' },
+                  { value: 'M', label: t('Masculino') },
+                  { value: 'F', label: t('Femenino') },
+                  { value: 'X', label: t('Otro') },
                 ]}
               />
             </div>
@@ -342,18 +344,18 @@ export default function EmployeeModal({ employee, onClose }) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Correo electrónico</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('Correo electrónico')}</label>
               <input
                 type="email"
                 value={form.email}
                 onChange={e => set('email', e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="juan@empresa.com"
+                placeholder={t('juan@empresa.com')}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Teléfono <span className="text-xs text-slate-400 font-normal">(opcional)</span>
+                {t('Teléfono')}{' '}<span className="text-xs text-slate-400 font-normal">{t('(opcional)')}</span>
               </label>
               <input
                 type="tel"
@@ -367,14 +369,14 @@ export default function EmployeeModal({ employee, onClose }) {
 
           {isOwner && (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Rol</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t('Rol')}</label>
             <FilterSelect
               block
               value={form.role}
               onChange={v => set('role', v)}
               options={[
-                { value: 'employee', label: 'Empleado' },
-                { value: 'admin',    label: 'Administrador' },
+                { value: 'employee', label: t('Empleado') },
+                { value: 'admin',    label: t('Administrador') },
               ]}
             />
             {form.role === 'admin' && (
@@ -384,7 +386,7 @@ export default function EmployeeModal({ employee, onClose }) {
                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-xs text-violet-700 leading-relaxed">
-                  Los administradores necesitan una cuenta para acceder al panel. Una vez guardado, podrás enviarle una invitación desde la lista de empleados para que configure su acceso.
+                  {t('Los administradores necesitan una cuenta para acceder al panel. Una vez guardado, podrás enviarle una invitación desde la lista de empleados para que configure su acceso.')}
                 </p>
               </div>
             )}
@@ -394,40 +396,40 @@ export default function EmployeeModal({ employee, onClose }) {
           {/* PIN */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
-              PIN de check-in
-              <span className="ml-1 text-slate-400 font-normal">(4 dígitos, opcional)</span>
+              {t('PIN de check-in')}
+              <span className="ml-1 text-slate-400 font-normal">{t('(4 dígitos, opcional)')}</span>
             </label>
             {isEditing && employee.pin_enabled && !pinJustRemoved && !removePin && !changingPin ? (
               <div className="flex items-center justify-between px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg">
-                <span className="text-sm text-slate-500">PIN activo ••••</span>
+                <span className="text-sm text-slate-500">{t('PIN activo ••••')}</span>
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => { setChangingPin(true); set('pin', '') }}
                     className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
                   >
-                    Cambiar
+                    {t('Cambiar')}
                   </button>
                   <button
                     type="button"
                     onClick={() => { setRemovePin(true); setPinError(null) }}
                     className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 transition-colors"
                   >
-                    Quitar
+                    {t('Quitar')}
                   </button>
                 </div>
               </div>
             ) : removePin ? (
               <div className="px-3 py-2.5 bg-rose-50 border border-rose-200 rounded-lg">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm text-rose-700">¿Quitar el PIN de este empleado?</span>
+                  <span className="text-sm text-rose-700">{t('¿Quitar el PIN de este empleado?')}</span>
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       type="button"
                       onClick={() => setRemovePin(false)}
                       className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 transition-colors"
                     >
-                      Cancelar
+                      {t('Cancelar')}
                     </button>
                     <button
                       type="button"
@@ -435,7 +437,7 @@ export default function EmployeeModal({ employee, onClose }) {
                       disabled={removeEmployeePin.isPending}
                       className="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white transition-colors"
                     >
-                      {removeEmployeePin.isPending ? 'Quitando...' : 'Quitar'}
+                      {removeEmployeePin.isPending ? t('Quitando...') : t('Quitar')}
                     </button>
                   </div>
                 </div>
@@ -459,7 +461,7 @@ export default function EmployeeModal({ employee, onClose }) {
                     onClick={generatePin}
                     className="text-xs font-medium px-2.5 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shrink-0"
                   >
-                    Generar
+                    {t('Generar')}
                   </button>
                   {form.pin.length === 4 && (
                     <button
@@ -467,7 +469,7 @@ export default function EmployeeModal({ employee, onClose }) {
                       onClick={() => navigator.clipboard.writeText(form.pin)}
                       className="text-xs font-medium px-2.5 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors shrink-0"
                     >
-                      Copiar
+                      {t('Copiar')}
                     </button>
                   )}
                 </div>
@@ -477,7 +479,7 @@ export default function EmployeeModal({ employee, onClose }) {
                     onClick={() => { setChangingPin(false); set('pin', '') }}
                     className="text-xs font-medium text-slate-500 hover:underline mt-1.5"
                   >
-                    Cancelar
+                    {t('Cancelar')}
                   </button>
                 )}
               </>
@@ -487,9 +489,9 @@ export default function EmployeeModal({ employee, onClose }) {
           {/* Horario */}
           <div className="border-t border-slate-200 pt-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-slate-700">Horario</span>
+              <span className="text-sm font-medium text-slate-700">{t('Horario')}</span>
               <label className="flex items-center gap-2 cursor-pointer select-none">
-                <span className="text-xs text-slate-500">Usar horario de empresa</span>
+                <span className="text-xs text-slate-500">{t('Usar horario de empresa')}</span>
                 <button
                   type="button"
                   role="switch"
@@ -520,22 +522,22 @@ export default function EmployeeModal({ employee, onClose }) {
             </div>
           )}
 
-          {/* Permisos adicionales — solo owner editando un admin */}
+          {/* Permisos adicionales - solo owner editando un admin */}
           {showPermissions && (
             <div className="border-t border-slate-200 pt-4">
-              <p className="text-sm font-medium text-slate-700 mb-1">Permisos adicionales</p>
-              <p className="text-xs text-slate-400 mb-3">Los cambios se guardan al instante.</p>
+              <p className="text-sm font-medium text-slate-700 mb-1">{t('Permisos adicionales')}</p>
+              <p className="text-xs text-slate-400 mb-3">{t('Los cambios se guardan al instante.')}</p>
               <div className="space-y-3">
                 {[
                   {
                     key: 'manage_holidays',
-                    label: 'Gestión de feriados',
-                    desc: 'Puede agregar y eliminar feriados del negocio',
+                    label: t('Gestión de feriados'),
+                    desc: t('Puede agregar y eliminar feriados del negocio'),
                   },
                   {
                     key: 'manage_settings',
-                    label: 'Configuración operativa',
-                    desc: 'Puede editar la tolerancia de tardanza, las áreas y las vacaciones',
+                    label: t('Configuración operativa'),
+                    desc: t('Puede editar la tolerancia de tardanza, las áreas y las vacaciones'),
                   },
                 ].map(({ key, label, desc }) => {
                   const enabled = !!(employee?.permissions?.[key])
@@ -579,14 +581,14 @@ export default function EmployeeModal({ employee, onClose }) {
               onClick={onClose}
               className="flex-1 border border-slate-300 hover:bg-slate-50 text-slate-600 font-medium py-2 px-4 rounded-lg text-sm transition-colors"
             >
-              Cancelar
+              {t('Cancelar')}
             </button>
             <button
               type="submit"
               disabled={isPending}
               className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors"
             >
-              {isPending ? 'Guardando...' : isEditing ? 'Guardar cambios' : 'Agregar empleado'}
+              {isPending ? t('Guardando...') : isEditing ? t('Guardar cambios') : t('Agregar empleado')}
             </button>
           </div>
         </form>

@@ -1,6 +1,7 @@
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts'
+import { t } from '../../i18n'
 
 /**
  * Tendencia de horas trabajadas por día. Props: serie (de computeEmployeeStats).
@@ -17,9 +18,9 @@ export default function AttendanceTrendChart({ serie = [] }) {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
-      <h3 className="text-sm font-semibold text-slate-800 mb-3">Horas trabajadas por día</h3>
+      <h3 className="text-sm font-semibold text-slate-800 mb-3">{t('Horas trabajadas por día')}</h3>
       {!hayDatos ? (
-        <p className="text-sm text-slate-400 py-10 text-center">Sin horas registradas en este mes.</p>
+        <p className="text-sm text-slate-400 py-10 text-center">{t('Sin horas registradas en este mes.')}</p>
       ) : (
         <div style={{ width: '100%', height: 220 }}>
           <ResponsiveContainer>
@@ -34,8 +35,8 @@ export default function AttendanceTrendChart({ serie = [] }) {
               <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
               <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={34} />
               <Tooltip
-                formatter={v => [`${v} h`, 'Horas']}
-                labelFormatter={l => `Día ${l}`}
+                formatter={v => [`${v} h`, t('Horas')]}
+                labelFormatter={l => t('Día {0}', [l])}
                 contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}
               />
               <Area type="monotone" dataKey="horas" stroke="#2E7DE9" strokeWidth={2} fill="url(#grad-horas)" />

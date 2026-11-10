@@ -6,6 +6,7 @@ import PasswordStrengthMeter from '../../components/ui/PasswordStrengthMeter'
 import AuthLayout from '../../components/layout/AuthLayout'
 import { BRAND_GRADIENT } from '../../utils/theme'
 import { isPasswordStrongEnough } from '../../utils/passwordStrength'
+import { t } from '../../i18n'
 
 export default function ResetPassword() {
   const navigate = useNavigate()
@@ -20,11 +21,11 @@ export default function ResetPassword() {
   async function handleSubmit(e) {
     e.preventDefault()
     if (password !== confirm) {
-      setError('Las contraseñas no coinciden.')
+      setError(t('Las contraseñas no coinciden.'))
       return
     }
     if (!isPasswordStrongEnough(password)) {
-      setError('Tu contraseña es muy débil. Combina mayúsculas, minúsculas y números, con al menos 8 caracteres.')
+      setError(t('Tu contraseña es muy débil. Combina mayúsculas, minúsculas y números, con al menos 8 caracteres.'))
       return
     }
     setError(null)
@@ -34,7 +35,7 @@ export default function ResetPassword() {
       setDone(true)
       setTimeout(() => navigate('/login'), 2000)
     } catch (err) {
-      setError(err.status === 404 ? 'El enlace no es válido o ya venció. Pide uno nuevo.' : 'No se pudo actualizar la contraseña.')
+      setError(err.status === 404 ? t('El enlace no es válido o ya venció. Pide uno nuevo.') : t('No se pudo actualizar la contraseña.'))
     } finally {
       setLoading(false)
     }
@@ -47,15 +48,15 @@ export default function ResetPassword() {
           className="text-2xl font-bold text-slate-900"
           style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
-          Nueva contraseña
+          {t('Nueva contraseña')}
         </h1>
-        <p className="text-slate-500 text-sm mt-1">Elige una contraseña segura</p>
+        <p className="text-slate-500 text-sm mt-1">{t('Elige una contraseña segura')}</p>
       </div>
 
       {!token ? (
         <p className="text-sm text-slate-600">
-          Este enlace está incompleto. Pide uno nuevo.{' '}
-          <Link to="/forgot-password" className="text-blue-600 hover:underline">Recuperar contraseña</Link>
+          {t('Este enlace está incompleto. Pide uno nuevo.')}{' '}
+          <Link to="/forgot-password" className="text-blue-600 hover:underline">{t('Recuperar contraseña')}</Link>
         </p>
       ) : done ? (
         <div className="space-y-4">
@@ -65,15 +66,15 @@ export default function ResetPassword() {
             </svg>
           </div>
           <div>
-            <p className="font-semibold text-slate-800 text-sm">Contraseña actualizada</p>
-            <p className="text-slate-500 text-sm mt-1">Ya puedes iniciar sesión con tu nueva contraseña.</p>
+            <p className="font-semibold text-slate-800 text-sm">{t('Contraseña actualizada')}</p>
+            <p className="text-slate-500 text-sm mt-1">{t('Ya puedes iniciar sesión con tu nueva contraseña.')}</p>
           </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-              Nueva contraseña
+              {t('Nueva contraseña')}
             </label>
             <PasswordInput
               id="password"
@@ -81,14 +82,14 @@ export default function ResetPassword() {
               autoComplete="new-password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="Mínimo 8 caracteres"
+              placeholder={t('Mínimo 8 caracteres')}
             />
             <PasswordStrengthMeter password={password} />
           </div>
 
           <div>
             <label htmlFor="confirm" className="block text-sm font-medium text-slate-700 mb-1">
-              Confirmar contraseña
+              {t('Confirmar contraseña')}
             </label>
             <PasswordInput
               id="confirm"
@@ -96,7 +97,7 @@ export default function ResetPassword() {
               autoComplete="new-password"
               value={confirm}
               onChange={e => setConfirm(e.target.value)}
-              placeholder="Repite la contraseña"
+              placeholder={t('Repite la contraseña')}
             />
           </div>
 
@@ -108,7 +109,7 @@ export default function ResetPassword() {
             className="w-full text-white font-medium py-2 px-4 rounded-lg text-sm transition-all disabled:opacity-50 hover:brightness-95"
             style={{ background: BRAND_GRADIENT }}
           >
-            {loading ? 'Guardando...' : 'Guardar contraseña'}
+            {loading ? t('Guardando...') : t('Guardar contraseña')}
           </button>
         </form>
       )}

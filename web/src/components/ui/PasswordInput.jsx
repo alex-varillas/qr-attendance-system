@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '../../i18n'
 
 // Input de contraseña con botón para mostrar/ocultar lo que se escribe.
 // Reusa el estilo de los inputs de auth; deja espacio a la derecha (pr-10)
@@ -32,8 +33,8 @@ export default function PasswordInput({
         type="button"
         onClick={() => setVisible(v => !v)}
         tabIndex={-1}
-        aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-        title={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+        aria-label={visible ? t('Ocultar contraseña') : t('Mostrar contraseña')}
+        title={visible ? t('Ocultar contraseña') : t('Mostrar contraseña')}
         className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition-colors"
       >
         {visible ? (

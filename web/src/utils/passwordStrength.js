@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js'
 // Live password strength meter, with no external dependency (zxcvbn and similar weigh several hundred KB).
 // The server enforces the real rule (a minimum length); this is feedback so people do not have to fail
 // the submit to find out their password is weak.
@@ -38,11 +39,11 @@ export function scorePassword(password) {
   if (!checks.length8) score = 0
 
   const LEVELS = [
-    { label: 'Muy débil', colorClass: 'bg-rose-500' },
-    { label: 'Débil', colorClass: 'bg-rose-500' },
-    { label: 'Media', colorClass: 'bg-amber-500' },
-    { label: 'Fuerte', colorClass: 'bg-green-500' },
-    { label: 'Muy fuerte', colorClass: 'bg-green-600' },
+    { label: t('Muy débil'), colorClass: 'bg-rose-500' },
+    { label: t('Débil'), colorClass: 'bg-rose-500' },
+    { label: t('Media'), colorClass: 'bg-amber-500' },
+    { label: t('Fuerte'), colorClass: 'bg-green-500' },
+    { label: t('Muy fuerte'), colorClass: 'bg-green-600' },
   ]
 
   return { score, ...LEVELS[score], checks }

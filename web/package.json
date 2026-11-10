@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "test": "node --test",
     "preview": "vite preview",
-    "e2e": "vite build && node e2e/run.mjs"
+    "e2e": "vite build && node e2e/run.mjs",
+    "i18n:check": "node scripts/i18n-check.mjs"
   },
   "dependencies": {
     "@fontsource/plus-jakarta-sans": "^5.2.0",

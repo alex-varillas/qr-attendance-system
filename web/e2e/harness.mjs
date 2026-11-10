@@ -227,7 +227,7 @@ export async function login(page, baseUrl, email, password) {
   await page.goto(`${baseUrl}/login`)
   await fill(page, '#email', email)
   await fill(page, '#password', password)
-  await clickText(page, 'Ingresar')
+  await page.click('button[type="submit"]') // whatever language the screen is in
   await waitForPath(page, '/dashboard')
 }
 

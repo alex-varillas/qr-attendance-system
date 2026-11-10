@@ -5,15 +5,16 @@ import { useAuth } from '../../hooks/useAuth.jsx'
 import { BRAND_GRADIENT } from '../../utils/theme'
 import { useLateCheckinAlerts } from '../../hooks/useLateCheckinAlerts'
 import { ROLE_LABELS } from '../../utils/labels'
+import { t, useLocale } from '../../i18n'
 
 // Navigation grouped by section. Each item has its own visibility rule (show) and icon.
 const NAV_SECTIONS = [
   {
-    label: 'General',
+    get label() { return t('General') },
     items: [
       {
         to: '/dashboard',
-        label: 'Dashboard',
+        get label() { return t('Dashboard') },
         show: () => true,
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,11 +26,11 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    label: 'Equipo',
+    get label() { return t('Equipo') },
     items: [
       {
         to: '/employees',
-        label: 'Empleados',
+        get label() { return t('Empleados') },
         show: () => true,
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -40,7 +41,7 @@ const NAV_SECTIONS = [
       },
       {
         to: '/leave',
-        label: 'Vacaciones',
+        get label() { return t('Vacaciones') },
         show: () => true,
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -51,7 +52,7 @@ const NAV_SECTIONS = [
       },
       {
         to: '/stats',
-        label: 'Estadísticas',
+        get label() { return t('Estadísticas') },
         show: () => true,
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,11 +64,11 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    label: 'Asistencia',
+    get label() { return t('Asistencia') },
     items: [
       {
         to: '/qr',
-        label: 'Código QR',
+        get label() { return t('Código QR') },
         show: ({ isOwner }) => isOwner,
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -78,7 +79,7 @@ const NAV_SECTIONS = [
       },
       {
         to: '/locations',
-        label: 'Sedes',
+        get label() { return t('Sedes') },
         show: ({ isOwner }) => isOwner,
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -89,7 +90,7 @@ const NAV_SECTIONS = [
       },
       {
         to: '/reports',
-        label: 'Reportes',
+        get label() { return t('Reportes') },
         show: () => true,
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,11 +102,11 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    label: 'Cuenta',
+    get label() { return t('Cuenta') },
     items: [
       {
         to: '/settings',
-        label: 'Configuración',
+        get label() { return t('Configuración') },
         show: ({ isOwner, hasPermission }) => isOwner || hasPermission('manage_settings') || hasPermission('manage_holidays'),
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -125,7 +126,7 @@ function Isotipo({ className = 'w-8 h-8' }) {
   return (
     <img
       src="/asistia-isotipo.png"
-      alt="Asistia"
+      alt={t('Asistia')}
       className={`${className} shrink-0`}
       style={{ boxShadow: '0 2px 8px rgba(46,125,233,0.25)' }}
     />
@@ -134,6 +135,7 @@ function Isotipo({ className = 'w-8 h-8' }) {
 
 export default function AppLayout({ children }) {
   const { user, business, userRole, isOwner, hasPermission } = useAuth()
+  useLocale() // the sidebar follows the language when the owner changes it in Settings
   useLateCheckinAlerts()
   const [collapsed, setCollapsed]   = useState(() => localStorage.getItem('sidebar_collapsed') === '1')
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -200,7 +202,7 @@ export default function AppLayout({ children }) {
       <header className="md:hidden fixed top-0 inset-x-0 h-14 bg-white border-b border-slate-200 flex items-center gap-3 px-4 z-30">
         <button
           onClick={() => setMobileOpen(true)}
-          aria-label="Abrir menú"
+          aria-label={t('Abrir menú')}
           className="w-9 h-9 -ml-1 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,7 +210,7 @@ export default function AppLayout({ children }) {
           </svg>
         </button>
         <Isotipo className="w-8 h-8" />
-        <span className="text-[17px] font-extrabold text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Asistia</span>
+        <span className="text-[17px] font-extrabold text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{t('Asistia')}</span>
       </header>
 
       {/* Backdrop del drawer móvil */}
@@ -233,11 +235,11 @@ export default function AppLayout({ children }) {
         <div className={`px-3 pt-4 pb-3 ${collapsed ? 'md:px-0' : ''}`}>
           <div className={`flex items-center gap-2.5 px-1 ${collapsed ? 'md:justify-center md:px-0' : ''}`}>
             <Isotipo className="w-7 h-7" />
-            <span className={`text-[15px] font-extrabold text-slate-900 tracking-tight ${labelHidden}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Asistia</span>
+            <span className={`text-[15px] font-extrabold text-slate-900 tracking-tight ${labelHidden}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{t('Asistia')}</span>
             {/* Cerrar drawer, solo móvil */}
             <button
               onClick={() => setMobileOpen(false)}
-              aria-label="Cerrar menú"
+              aria-label={t('Cerrar menú')}
               className="md:hidden ml-auto w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -256,7 +258,7 @@ export default function AppLayout({ children }) {
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400 leading-none mb-0.5">Negocio</p>
+                <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400 leading-none mb-0.5">{t('Negocio')}</p>
                 <p className="text-sm font-semibold text-slate-700 truncate leading-tight">{business.name}</p>
               </div>
             </div>
@@ -285,14 +287,14 @@ export default function AppLayout({ children }) {
         {/* Botón colapsar, solo desktop */}
         <button
           onClick={() => setCollapsed(c => !c)}
-          title={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+          title={collapsed ? t('Expandir menú') : t('Colapsar menú')}
           aria-expanded={!collapsed}
           className={`hidden md:flex items-center gap-3 mx-3 mb-1 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors ${itemJustify}`}
         >
           <svg className={`w-5 h-5 shrink-0 transition-transform ${collapsed ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
           </svg>
-          <span className={labelHidden}>Colapsar</span>
+          <span className={labelHidden}>{t('Colapsar')}</span>
         </button>
 
         {/* Footer, usuario */}
@@ -345,7 +347,7 @@ function SignOutButton() {
   return (
     <button
       onClick={signOut}
-      title="Cerrar sesión"
+      title={t('Cerrar sesión')}
       className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
     >
       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
