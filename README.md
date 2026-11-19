@@ -21,7 +21,7 @@ Spanish version: [README.es.md](README.es.md)
 You need Docker with Compose.
 
 ```sh
-git clone <repository-url>
+git clone https://github.com/alex-varillas/qr-attendance-system.git
 cd qr-attendance-system
 cp .env.example .env        # set POSTGRES_PASSWORD to a long random value
 docker compose up -d

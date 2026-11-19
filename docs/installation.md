@@ -11,7 +11,7 @@ QR Attendance System runs as two containers: the app (API and web app together) 
 ## With Docker Compose
 
 ```sh
-git clone <repository-url>
+git clone https://github.com/alex-varillas/qr-attendance-system.git
 cd qr-attendance-system
 cp .env.example .env
 ```
