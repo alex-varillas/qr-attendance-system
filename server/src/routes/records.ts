@@ -105,7 +105,7 @@ export default async function recordRoutes(app: FastifyInstance): Promise<void> 
     return many(
       app.pool,
       `SELECT ${JUSTIFICATION_COLUMNS} FROM absence_justifications
-        WHERE ($1::date IS NULL OR date = $1::date)
+        WHERE ($1::date IS NULL OR (date <= $1::date AND COALESCE(date_to, date) >= $1::date))
           AND ($2::int IS NULL OR date BETWEEN make_date($2::int, 1, 1) AND make_date($2::int, 12, 31))
           AND ($3::uuid IS NULL OR employee_id = $3::uuid)
         ORDER BY date DESC

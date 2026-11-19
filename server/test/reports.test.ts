@@ -71,6 +71,18 @@ describe('reports', () => {
       assert.equal(data.schedules[0].is_default, true)
     })
 
+    it('includes an absence that started before the range and still covers it', async () => {
+      const vera = (await owner.post('/api/employees', { name: 'Vera', last_name: 'Gamma' })).body.id
+      await owner.post('/api/justifications', { employee_id: vera, date: '2027-03-28', date_to: '2027-04-03', type: 'vacaciones' })
+      const covered = (await owner.get('/api/reports/data?from=2027-04-01&to=2027-04-30')).body
+      assert.equal(covered.justifications.filter((j: { employee_id: string }) => j.employee_id === vera).length, 1)
+      // Once it is over it does not come back, and before it starts it is not there yet.
+      const after = (await owner.get('/api/reports/data?from=2027-04-04&to=2027-04-30')).body
+      assert.equal(after.justifications.filter((j: { employee_id: string }) => j.employee_id === vera).length, 0)
+      const before = (await owner.get('/api/reports/data?from=2027-03-01&to=2027-03-27')).body
+      assert.equal(before.justifications.filter((j: { employee_id: string }) => j.employee_id === vera).length, 0)
+    })
+
     it('lists active employees only, and never the owner', async () => {
       const data = (await owner.get('/api/reports/data?from=2027-01-01&to=2027-01-31')).body
       const ids = data.employees.map((employee: { id: string }) => employee.id)

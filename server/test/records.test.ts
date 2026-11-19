@@ -82,6 +82,11 @@ describe('attendance, absences, leave and overtime', () => {
       assert.equal(created.body.status, 'approved')
       assert.equal(created.body.created_by !== null, true)
       assert.equal((await owner.get('/api/justifications?date=2027-04-12')).body.length, 1)
+      // An absence of several days covers every one of them, not only the day it starts.
+      assert.equal((await owner.get('/api/justifications?date=2027-04-13')).body.length, 1)
+      assert.equal((await owner.get('/api/justifications?date=2027-04-14')).body.length, 1)
+      assert.equal((await owner.get('/api/justifications?date=2027-04-11')).body.length, 0)
+      assert.equal((await owner.get('/api/justifications?date=2027-04-15')).body.length, 0)
       assert.equal((await owner.get('/api/justifications?year=2027')).body.length, 1)
       assert.equal((await owner.get('/api/justifications?year=2026')).body.length, 0)
       assert.equal((await owner.get(`/api/justifications?employee_id=${employeeId}`)).body.length, 1)
