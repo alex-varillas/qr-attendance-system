@@ -97,7 +97,7 @@ export default async function reportRoutes(app: FastifyInstance): Promise<void> 
       many(
         app.pool,
         `SELECT employee_id, date, date_to, type, reason, status
-           FROM absence_justifications WHERE date BETWEEN $1 AND $2`,
+           FROM absence_justifications WHERE date <= $2 AND COALESCE(date_to, date) >= $1`,
         [from, to],
       ),
       many(app.pool, 'SELECT date, name FROM holidays WHERE date BETWEEN $1 AND $2 ORDER BY date', [from, to]),
