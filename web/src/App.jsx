@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from './hooks/useAuth.jsx'
+import { AuthProvider, useAuth } from './hooks/useAuth.jsx'
 import { OwnerRoute, PermissionRoute, ProtectedRoute, PublicRoute, SetupGate } from './components/layout/ProtectedRoute'
 import Login from './pages/auth/Login'
 import Setup from './pages/auth/Setup'
@@ -19,6 +19,16 @@ import Locations from './pages/locations/Locations'
 import Settings from './pages/settings/Settings'
 import Dashboard from './pages/dashboard/Dashboard'
 
+/**
+ * The language of the business arrives with the first answer of the server. Nothing is drawn before it, so no
+ * screen (the public check-in one above all) shows up in the wrong language and then changes.
+ */
+function LanguageGate({ children }) {
+  const { loading } = useAuth()
+  if (loading) return <div className="min-h-screen bg-slate-50" aria-busy="true" />
+  return children
+}
+
 function AppPage({ children }) {
   return (
     <ProtectedRoute>
@@ -33,36 +43,38 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          {/* First run of a new installation */}
-          <Route path="/setup" element={<Setup />} />
+        <LanguageGate>
+          <Routes>
+            {/* First run of a new installation */}
+            <Route path="/setup" element={<Setup />} />
 
-          {/* Public pages */}
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
-          <Route path="/reset-password" element={<SetupGate><ResetPassword /></SetupGate>} />
-          <Route path="/accept-invite" element={<SetupGate><AcceptInvite /></SetupGate>} />
+            {/* Public pages */}
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+            <Route path="/reset-password" element={<SetupGate><ResetPassword /></SetupGate>} />
+            <Route path="/accept-invite" element={<SetupGate><AcceptInvite /></SetupGate>} />
 
-          {/* The screen employees open by scanning the QR code (no account needed) */}
-          <Route path="/checkin/:checkinId" element={<Checkin />} />
+            {/* The screen employees open by scanning the QR code (no account needed) */}
+            <Route path="/checkin/:checkinId" element={<Checkin />} />
 
-          {/* Signed-in pages */}
-          <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
-          <Route path="/employees" element={<AppPage><Employees /></AppPage>} />
-          <Route path="/employees/:id" element={<AppPage><EmployeeProfile /></AppPage>} />
-          <Route path="/stats" element={<AppPage><EmployeeStats /></AppPage>} />
-          <Route path="/leave" element={<AppPage><Leave /></AppPage>} />
-          <Route path="/reports" element={<AppPage><Reports /></AppPage>} />
+            {/* Signed-in pages */}
+            <Route path="/dashboard" element={<AppPage><Dashboard /></AppPage>} />
+            <Route path="/employees" element={<AppPage><Employees /></AppPage>} />
+            <Route path="/employees/:id" element={<AppPage><EmployeeProfile /></AppPage>} />
+            <Route path="/stats" element={<AppPage><EmployeeStats /></AppPage>} />
+            <Route path="/leave" element={<AppPage><Leave /></AppPage>} />
+            <Route path="/reports" element={<AppPage><Reports /></AppPage>} />
 
-          {/* Owner only */}
-          <Route path="/qr" element={<AppPage><OwnerRoute><QrCode /></OwnerRoute></AppPage>} />
-          <Route path="/locations" element={<AppPage><OwnerRoute><Locations /></OwnerRoute></AppPage>} />
+            {/* Owner only */}
+            <Route path="/qr" element={<AppPage><OwnerRoute><QrCode /></OwnerRoute></AppPage>} />
+            <Route path="/locations" element={<AppPage><OwnerRoute><Locations /></OwnerRoute></AppPage>} />
 
-          {/* The owner, or an administrator with the settings or holidays permission */}
-          <Route path="/settings" element={<AppPage><PermissionRoute anyOf={['manage_settings', 'manage_holidays']}><Settings /></PermissionRoute></AppPage>} />
+            {/* The owner, or an administrator with the settings or holidays permission */}
+            <Route path="/settings" element={<AppPage><PermissionRoute anyOf={['manage_settings', 'manage_holidays']}><Settings /></PermissionRoute></AppPage>} />
 
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </LanguageGate>
       </AuthProvider>
     </BrowserRouter>
   )

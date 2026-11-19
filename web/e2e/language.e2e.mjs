@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { apiCall, assert, clickText, expectNoText, expectText, login } from './harness.mjs'
+import { apiCall, assert, clickText, expectNoText, expectText, login, wait } from './harness.mjs'
 import { OWNER } from './auth.e2e.mjs'
 
 export const title = 'Language'
@@ -44,6 +44,21 @@ export const scenarios = () => [
     await expectText(page, 'Select your name')
     await page.goto(`${st.baseUrl}/checkin/00000000-0000-4000-8000-000000000000`)
     await expectText(page, 'No registered employees')
+  }],
+
+  ['nothing is drawn in the wrong language while the language of the business is still on its way', async (page, st) => {
+    // Hold the answer that carries the language back for a moment, like a slow connection would.
+    await page.setRequestInterception(true)
+    page.on('request', (request) => {
+      if (request.url().endsWith('/api/setup/status')) setTimeout(() => request.continue().catch(() => {}), 1500)
+      else request.continue().catch(() => {})
+    })
+    await page.goto(`${st.baseUrl}/checkin/00000000-0000-4000-8000-000000000000`, { waitUntil: 'domcontentloaded' })
+    await wait(600)
+    const early = await page.evaluate(() => document.body?.innerText ?? '')
+    assert(!/Sin empleados|Cargando|Pide al administrador/.test(early), `a Spanish text showed up before the language was known: ${JSON.stringify(early.slice(0, 120))}`)
+    await expectText(page, 'No registered employees', 10000)
+    await expectNoText(page, 'Sin empleados registrados')
   }],
 
   ['a message of the server arrives in the language of the screen', async (page, st) => {
