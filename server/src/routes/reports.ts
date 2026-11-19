@@ -73,7 +73,7 @@ export default async function reportRoutes(app: FastifyInstance): Promise<void> 
       ),
       many(
         app.pool,
-        `SELECT id, employee_id, location_id, name, days_of_week, start_time, end_time, break_start, break_end, is_default
+        `SELECT id, employee_id, location_id, name, days_of_week, start_time, end_time, break_start, break_end, is_default, active
            FROM schedules WHERE active = true`,
       ),
       many(

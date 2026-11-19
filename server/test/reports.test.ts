@@ -65,6 +65,10 @@ describe('reports', () => {
       assert.equal(data.overtime_authorizations[0].minutes_authorized, 45)
       assert.equal(data.schedule_exceptions[0].reason, 'Closed')
       assert.equal(data.schedules.length, 1)
+      // The app decides which schedule applies from these two fields. Without `active` every day looks like a
+      // rest day, and the statistics and the reports show no working days at all.
+      assert.equal(data.schedules[0].active, true)
+      assert.equal(data.schedules[0].is_default, true)
     })
 
     it('lists active employees only, and never the owner', async () => {
