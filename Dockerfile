@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # 1) Build the web app.
-FROM node:24-alpine AS web-build
+FROM node:26-alpine AS web-build
 WORKDIR /app/web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci --no-audit --no-fund
@@ -9,13 +9,13 @@ COPY web/ ./
 RUN npm run build
 
 # 2) Install the server's runtime dependencies only.
-FROM node:24-alpine AS server-deps
+FROM node:26-alpine AS server-deps
 WORKDIR /app/server
 COPY server/package.json server/package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund
 
 # 3) The image that runs: the server (TypeScript runs directly on Node 24) serving the built web app.
-FROM node:24-alpine
+FROM node:26-alpine
 ENV NODE_ENV=production
 WORKDIR /app/server
 COPY --from=server-deps /app/server/node_modules ./node_modules
