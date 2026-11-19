@@ -113,6 +113,12 @@ export async function startStack({ headless = true } = {}) {
       const context = await browser.createBrowserContext()
       const page = await context.newPage()
       page.browserContext = context
+      // The screens pick their first language from the browser. Pin it, so the tests do not depend on the
+      // language of the machine that runs them (a CI runner is in English, a developer's laptop may not be).
+      await page.evaluateOnNewDocument(() => {
+        Object.defineProperty(navigator, 'language', { get: () => 'es-PE' })
+        Object.defineProperty(navigator, 'languages', { get: () => ['es-PE', 'es'] })
+      })
       const problems = []
       page.on('pageerror', (error) => problems.push(`pageerror: ${error.message}`))
       page.on('console', (message) => {
