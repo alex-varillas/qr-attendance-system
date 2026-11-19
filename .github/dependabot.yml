@@ -1,5 +1,7 @@
 # Keeps the dependencies up to date. Each ecosystem gets one pull request a week, with the minor and patch
-# updates grouped, so the CI checks every change before it is merged.
+# updates grouped, so the CI checks every change before it is merged. A new major version of a library, of
+# TypeScript or of the Node.js image is a decision to take on purpose (and the project stays on the Node.js LTS),
+# so those are not proposed automatically; security updates still are.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -7,6 +9,9 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       server-minor-and-patch:
         update-types: [minor, patch]
@@ -16,6 +21,9 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       web-minor-and-patch:
         update-types: [minor, patch]
@@ -29,3 +37,6 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
