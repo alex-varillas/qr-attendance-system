@@ -18,15 +18,25 @@ cp .env.example .env
 
 Edit `.env` and set `POSTGRES_PASSWORD` to a long random value. The other settings have defaults; see [configuration](configuration.md).
 
+There are two ways to start it. The first downloads the published Docker image (Linux amd64 and arm64), which is faster and is the one to use for updates:
+
+```sh
+docker compose -f docker-compose.yml -f docker-compose.image.yml up -d
+```
+
+The second builds the image from the source on your machine (a few minutes the first time):
+
 ```sh
 docker compose up -d
 ```
 
-The first start builds the image (a few minutes) and creates the database and its tables. Open <http://localhost:3000>. The first screen asks for:
+Either way the database and its tables are created when the app starts. Open <http://localhost:3000>. The first screen asks for:
 
 - the name of the business, an optional tax ID, its time zone and the language of the interface (you can change them later in Settings);
 - the owner account (first name, last name, email, password);
 - the usual working hours, with an optional break, which become the schedule of the business.
+
+![The first-run setup](images/setup.webp)
 
 That screen works once. When it is done the system is closed to public sign-up, and from then on people only enter with an account the owner invites.
 
@@ -78,10 +88,15 @@ The server applies the database migrations when it starts. `DATA_DIR` must be a 
 
 ## Updating
 
+With the published image, pick the version in `.env` (`APP_VERSION=0.1.0`; without it you follow `latest`) and run:
+
 ```sh
 git pull
-docker compose up -d --build
+docker compose -f docker-compose.yml -f docker-compose.image.yml pull
+docker compose -f docker-compose.yml -f docker-compose.image.yml up -d
 ```
+
+If you build from the source instead: `git pull` and `docker compose up -d --build`.
 
 Database migrations run automatically when the new version starts. Read the [changelog](../CHANGELOG.md) before updating, and make a [backup](#backups) first.
 

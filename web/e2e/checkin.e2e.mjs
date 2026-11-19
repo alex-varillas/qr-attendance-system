@@ -54,7 +54,7 @@ export const scenarios = () => [
       await asOwner(owner, st)
       await apiCall(owner, 'POST', '/employees', { name: 'Pia', last_name: 'Pin', pin: '4321' })
     } finally {
-      await owner.browserContext?.close().catch(() => {})
+      await owner.ownContext?.close().catch(() => {})
     }
     const id = await businessId(st)
     await page.goto(`${st.baseUrl}/checkin/${id}`)
@@ -80,10 +80,10 @@ export const scenarios = () => [
       const set = await apiCall(owner, 'PATCH', '/business', { geo_enabled: true, geo_radius_meters: 100, location_lat: HOME.latitude, location_lng: HOME.longitude })
       assert(set.status === 200, 'could not turn on the verification')
     } finally {
-      await owner.browserContext?.close().catch(() => {})
+      await owner.ownContext?.close().catch(() => {})
     }
     const id = await businessId(st)
-    await page.browserContext.overridePermissions(st.baseUrl, ['geolocation'])
+    await page.ownContext.overridePermissions(st.baseUrl, ['geolocation'])
 
     // 600 m north: refused, and the attempt is kept for the owner.
     await page.setGeolocation({ latitude: HOME.latitude + 0.0054, longitude: HOME.longitude, accuracy: 10 })
@@ -104,7 +104,7 @@ export const scenarios = () => [
 
   ['with location verification on, denying the permission explains what to do', async (page, st) => {
     const id = await businessId(st)
-    await page.browserContext.overridePermissions(st.baseUrl, [])
+    await page.ownContext.overridePermissions(st.baseUrl, [])
     await page.goto(`${st.baseUrl}/checkin/${id}`)
     await pick(page, 'Ivan Import')
     await expectText(page, 'permitir el acceso a tu ubicación')
@@ -133,7 +133,7 @@ export const scenarios = () => [
       await expectText(anon, 'Downtown')
       await expectText(anon, 'Corner Bakery')
     } finally {
-      await anon.browserContext?.close().catch(() => {})
+      await anon.ownContext?.close().catch(() => {})
     }
     void wait
     void waitForPath

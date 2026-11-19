@@ -11,6 +11,8 @@ The app is configured with environment variables. With Docker Compose you set th
 | `POSTGRES_PASSWORD` | none, required | Password of the database. Use a long random value. |
 | `APP_PORT` | `3000` | Port where the app listens on this machine. |
 | `DOMAIN` | `localhost` | Domain served by Caddy. Used only with `--profile https`. |
+| `APP_VERSION` | `latest` | Version of the published image to run, for example `0.1.0`. Used only with `docker-compose.image.yml`. |
+| `APP_IMAGE` | `ghcr.io/alex-varillas/qr-attendance-system` | Image to run, to use a copy from another registry or from your own fork. Used only with `docker-compose.image.yml`. |
 
 ### The app
 

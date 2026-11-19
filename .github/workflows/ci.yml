@@ -82,3 +82,35 @@ jobs:
         run: npm --prefix web run e2e
         env:
           CHROME_PATH: /usr/bin/google-chrome
+      - name: Keep the screenshots of a failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: web/e2e/artifacts
+          if-no-files-found: ignore
+
+  docker:
+    name: The Docker image builds and starts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: The compose files are valid
+        run: |
+          export POSTGRES_PASSWORD=ci-password
+          docker compose -f docker-compose.yml config -q
+          docker compose -f docker-compose.yml -f docker-compose.image.yml config -q
+          docker compose --profile https -f docker-compose.yml config -q
+      - name: Build the image and start the stack
+        run: |
+          export POSTGRES_PASSWORD=ci-password
+          docker compose up -d --build
+          for i in $(seq 1 40); do
+            if curl -fsS http://localhost:3000/api/health; then echo; exit 0; fi
+            sleep 3
+          done
+          docker compose logs
+          exit 1
+      - name: Stop the stack
+        if: always()
+        run: docker compose down -v

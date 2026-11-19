@@ -2,6 +2,8 @@
 
 Control de asistencia por QR de código abierto para un solo negocio. Los empleados marcan escaneando un código QR con su celular (sin instalar ninguna app), y el dueño y los administradores ven el día en un dashboard y exportan reportes. Lo ejecutas en tu propio servidor, así que los datos son tuyos.
 
+[![CI](https://github.com/alex-varillas/qr-attendance-system/actions/workflows/ci.yml/badge.svg)](https://github.com/alex-varillas/qr-attendance-system/actions/workflows/ci.yml) [![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-blue.svg)](LICENSE)
+
 Versión en inglés: [README.md](README.md)
 
 ## Funciones
@@ -16,6 +18,18 @@ Versión en inglés: [README.md](README.md)
 - **Interfaz en español e inglés**, a elegir por instalación.
 - **Autoalojado.** Docker Compose con PostgreSQL, HTTPS automático opcional y correo opcional.
 
+## Capturas
+
+<p align="center"><img src="docs/images/dashboard.webp" alt="El dashboard: quién marcó, quién llegó tarde y quién falta" width="900"></p>
+
+<p align="center">
+  <img src="docs/images/checkin-mobile.webp" alt="La pantalla de marcación que ve un empleado en su celular" width="250">
+  &nbsp;
+  <img src="docs/images/statistics.webp" alt="Estadísticas de un empleado: asistencia, puntualidad y horas trabajadas" width="640">
+</p>
+
+Hay más en [docs/images](docs/images): empleados, ficha del empleado, vacaciones y ausencias, código QR, sedes y la configuración inicial. Todas muestran datos inventados.
+
 ## Inicio rápido
 
 Necesitas Docker con Compose.
@@ -24,8 +38,10 @@ Necesitas Docker con Compose.
 git clone https://github.com/alex-varillas/qr-attendance-system.git
 cd qr-attendance-system
 cp .env.example .env        # define POSTGRES_PASSWORD con un valor largo y aleatorio
-docker compose up -d
+docker compose -f docker-compose.yml -f docker-compose.image.yml up -d
 ```
+
+Eso descarga la imagen publicada (Linux amd64 y arm64). Para construirla desde el código, usa `docker compose up -d`.
 
 Abre <http://localhost:3000>. La primera pantalla crea el negocio y la cuenta del dueño. Después no hay registro público: los administradores entran con un enlace de invitación del dueño.
 

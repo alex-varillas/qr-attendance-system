@@ -2,6 +2,8 @@
 
 Open source attendance control with QR codes for a single business. Employees check in by scanning a QR code with their phone (no app to install), and the owner and the administrators follow the day on a dashboard and export reports. You run it on your own server, so the data stays yours.
 
+[![CI](https://github.com/alex-varillas/qr-attendance-system/actions/workflows/ci.yml/badge.svg)](https://github.com/alex-varillas/qr-attendance-system/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Spanish version: [README.es.md](README.es.md)
 
 ## Features
@@ -16,6 +18,18 @@ Spanish version: [README.es.md](README.es.md)
 - **Spanish and English interface**, chosen per installation.
 - **Self-hosted.** Docker Compose with PostgreSQL, optional automatic HTTPS, optional email.
 
+## Screenshots
+
+<p align="center"><img src="docs/images/dashboard.webp" alt="The dashboard: who checked in, who is late, who is missing" width="900"></p>
+
+<p align="center">
+  <img src="docs/images/checkin-mobile.webp" alt="The check-in screen an employee sees on their phone" width="250">
+  &nbsp;
+  <img src="docs/images/statistics.webp" alt="Statistics of an employee: attendance, punctuality and hours worked" width="640">
+</p>
+
+More in [docs/images](docs/images): employees, employee profile, vacations and absences, QR code, locations and the first-run setup. All of them show made-up data.
+
 ## Quick start
 
 You need Docker with Compose.
@@ -24,8 +38,10 @@ You need Docker with Compose.
 git clone https://github.com/alex-varillas/qr-attendance-system.git
 cd qr-attendance-system
 cp .env.example .env        # set POSTGRES_PASSWORD to a long random value
-docker compose up -d
+docker compose -f docker-compose.yml -f docker-compose.image.yml up -d
 ```
+
+That downloads the published image (Linux amd64 and arm64). To build it from the source instead, use `docker compose up -d`.
 
 Open <http://localhost:3000>. The first screen creates the business and the owner account. After that there is no public sign-up: administrators join with an invitation link from the owner.
 

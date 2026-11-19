@@ -112,7 +112,7 @@ export async function startStack({ headless = true } = {}) {
       // Each scenario gets its own browser profile, so a session from one never leaks into the next.
       const context = await browser.createBrowserContext()
       const page = await context.newPage()
-      page.browserContext = context
+      page.ownContext = context
       // The screens pick their first language from the browser. Pin it, so the tests do not depend on the
       // language of the machine that runs them (a CI runner is in English, a developer's laptop may not be).
       await page.evaluateOnNewDocument(() => {
@@ -159,7 +159,7 @@ export async function runScenarios(title, stack, scenarios) {
       await page.screenshot({ path: file, fullPage: true }).catch(() => {})
       console.log(`      screenshot: ${file}`)
     } finally {
-      await page.browserContext?.close().catch(() => {})
+      await page.ownContext?.close().catch(() => {})
     }
   }
   console.log(`\n${scenarios.length - failed} passed, ${failed} failed`)

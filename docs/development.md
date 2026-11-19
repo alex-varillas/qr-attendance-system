@@ -52,6 +52,7 @@ npm run db:test                # PostgreSQL on localhost:55433
 | `npm run lint` | `tsc --noEmit` on the server and ESLint on the web app |
 | `npm run test:e2e` | Builds the web app and drives it in a real browser, with a new database and server per run |
 | `npm --prefix web run i18n:check` | Fails if a text has no English translation |
+| `npm --prefix web run screenshots` | Regenerates the images in `docs/images` from the real app with made-up data (needs `npm run db:test` and Chrome or Edge) |
 
 The server tests talk to a real PostgreSQL, not mocks. Point them at another one with `TEST_DATABASE_URL` (a user that can create databases, `postgres://user:pass@host:port/postgres`).
 
@@ -88,6 +89,12 @@ Rules:
 - A screen that can be open while the language changes (the layout, Settings, the setup) calls `useLocale()` so it redraws.
 
 To add a language, add its dictionary next to `en.js` and register it in `DICTIONARIES` and `SUPPORTED_LOCALES` in `web/src/i18n/index.js`, extend the language selectors in Settings and Setup, give `serverMessages.js` its version, and add the code to the `locale` enums in `server/src/routes/auth.ts` and `server/src/routes/settings.ts`.
+
+## Releases
+
+1. Move the entries of `## [Unreleased]` in `CHANGELOG.md` under a new `## [x.y.z] - date` heading, and set the version in the three `package.json` files.
+2. Merge that through a pull request, then tag `main`: `git tag vx.y.z && git push origin vx.y.z`.
+3. The **Release** workflow publishes the Docker image to `ghcr.io/alex-varillas/qr-attendance-system` (tags `x.y.z`, `x.y` and `latest`, for amd64 and arm64) and creates the GitHub release with the notes of that version from the changelog.
 
 ## Conventions
 

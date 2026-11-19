@@ -1,0 +1,10 @@
+# Runs the published Docker image instead of building the app from the source: faster to install and to update.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.image.yml up -d
+#
+# Pick a version with APP_VERSION in the .env file (for example APP_VERSION=0.1.0). The default is the latest one.
+# APP_IMAGE lets you use a copy of the image from another registry or from your own fork.
+services:
+  app:
+    image: ${APP_IMAGE:-ghcr.io/alex-varillas/qr-attendance-system}:${APP_VERSION:-latest}
+    pull_policy: always

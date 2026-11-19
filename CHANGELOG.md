@@ -4,6 +4,8 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-19
+
 ### Added
 
 First public version.
@@ -18,5 +20,6 @@ First public version.
 - Roles: owner, administrators with grantable permissions, and employees without an account.
 - Spanish and English interface, chosen per installation.
 - Sign-in with sessions, invitations and password links; optional email; a command to recover the owner's password.
-- Installation with Docker Compose and PostgreSQL, with optional automatic HTTPS through Caddy.
+- Installation with Docker Compose and PostgreSQL, with optional automatic HTTPS through Caddy, and a published Docker image for amd64 and arm64 (`ghcr.io/alex-varillas/qr-attendance-system`).
+- Screenshots of the app in the README and `docs/images`, regenerated with `npm --prefix web run screenshots`.
 - Guides in `docs/`, and tests: server integration tests, web unit tests and end-to-end tests in a real browser.
