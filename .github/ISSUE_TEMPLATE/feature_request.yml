@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest an improvement
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This project is for one business per installation and stays small on purpose.
+        Please read the scope in CONTRIBUTING.md before you propose something big.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that is hard or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: How could it work? A sketch or an example helps.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered

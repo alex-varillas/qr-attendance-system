@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Type check, lint, unit and integration tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: qras
+          POSTGRES_PASSWORD: qras
+          POSTGRES_DB: postgres
+        ports:
+          - 55433:5432
+        options: >-
+          --health-cmd "pg_isready -U qras"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            web/package-lock.json
+      - run: npm --prefix server ci
+      - run: npm --prefix web ci
+      - name: Type check the server
+        run: npm --prefix server run typecheck
+      - name: Lint the web app
+        run: npm --prefix web run lint
+      - name: Every text has an English translation
+        run: npm --prefix web run i18n:check
+      - name: Server integration tests
+        run: npm --prefix server test
+      - name: Web unit tests
+        run: npm --prefix web test
+      - name: Build the web app
+        run: npm --prefix web run build
+
+  e2e:
+    name: End-to-end tests in a browser
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: qras
+          POSTGRES_PASSWORD: qras
+          POSTGRES_DB: postgres
+        ports:
+          - 55433:5432
+        options: >-
+          --health-cmd "pg_isready -U qras"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            web/package-lock.json
+      - run: npm --prefix server ci
+      - run: npm --prefix web ci
+      - name: Run the end-to-end tests
+        run: npm --prefix web run e2e
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
