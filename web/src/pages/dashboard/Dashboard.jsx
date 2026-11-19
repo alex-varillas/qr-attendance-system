@@ -30,6 +30,7 @@ import {
   minutesToReadable,
   formatMinutes,
   timeToMinutes,
+  estadoConJustificacion,
 } from '../../utils/attendance'
 import { todayISO, formatTime, extractTime, getAppTimezone, monthName, weekdayShort, weekdayInitials } from '../../utils/dates'
 import { t } from '../../i18n'
@@ -76,8 +77,8 @@ function AttendanceRow({ emp, empRecords, schedule, tieneHorario, now, isToday, 
     }
   }
 
-  // Si hay justificación y el estado es falta → mostrar como justificado
-  const estadoFinal = (estado === 'falta' && justification) ? 'justificado' : estado
+  // Si hay justificación y el estado es falta o ausente → mostrar como justificado
+  const estadoFinal = estadoConJustificacion(estado, justification)
   const esFalta     = estado === 'falta'
 
   const tardanza  = calcularTardanza(checkinTime, schedule?.start_time, toleranceMinutes)

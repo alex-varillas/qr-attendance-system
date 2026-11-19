@@ -1,4 +1,13 @@
 import { t } from '../i18n/index.js'
+
+/**
+ * The status a row of the dashboard shows. Someone with a justified absence (a vacation, a medical leave) is
+ * shown as justified, both while the day is still going ('ausente') and once it is over ('falta'). Before, only
+ * 'falta' was, so a person on approved vacation looked absent in red until the end of the working day.
+ */
+export function estadoConJustificacion(estado, justification) {
+  return (estado === 'falta' || estado === 'ausente') && justification ? 'justificado' : estado
+}
 /**
  * Lógica de cálculo de asistencia de Asistia.
  * Toda la lógica de negocio definida en docs/referencia/LOGICA-ASISTENCIA.md vive aquí.
