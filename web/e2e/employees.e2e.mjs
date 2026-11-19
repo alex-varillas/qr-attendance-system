@@ -125,7 +125,7 @@ export const scenarios = (stack) => [
       // An administrator without permissions does not even see Settings.
       await expectNoText(other, 'Configuración')
     } finally {
-      await other.browserContext?.close().catch(() => {})
+      await other.ownContext?.close().catch(() => {})
     }
     await page.reload()
     await expectText(page, 'Acceso activo')
@@ -161,7 +161,7 @@ export const scenarios = (stack) => [
       await login(gina, st.baseUrl, 'gina@example.com', 'Gina-Password-8')
       await expectText(gina, 'Configuración')
     } finally {
-      await gina.browserContext?.close().catch(() => {})
+      await gina.ownContext?.close().catch(() => {})
     }
   }],
 ]

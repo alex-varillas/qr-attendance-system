@@ -55,7 +55,7 @@ export const scenarios = () => [
       const marked = await apiCall(phone, 'POST', '/public/checkin', { employee_id: created.body.id })
       assert(marked.status === 201, `the check-in failed: ${JSON.stringify(marked.body)}`)
     } finally {
-      await phone.browserContext?.close().catch(() => {})
+      await phone.ownContext?.close().catch(() => {})
     }
 
     await page.waitForFunction(

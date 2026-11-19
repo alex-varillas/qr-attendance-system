@@ -19,7 +19,7 @@ async function allowDownloads(page, dir) {
     behavior: 'allow',
     downloadPath: dir,
     eventsEnabled: true,
-    browserContextId: page.browserContext?.id,
+    browserContextId: page.ownContext?.id,
   })
 }
 
